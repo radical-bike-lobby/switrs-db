@@ -1,0 +1,10 @@
+key,name
+1,"Ramp Exit, Last 50 Feet"
+2,Mid-Ramp
+3,"Ramp Entry, First 50 Feet"
+4,"Not State Highway, Ramp-related, Within 100 Feet"
+5,Intersection
+6,"Not State Highway, Intersection-related, Within 250 Feet"
+7,Highway
+8,Not State Highway
+-,Not Stated

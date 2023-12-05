@@ -1,0 +1,12 @@
+key,name
+A,Non-Collision
+B,Pedestrian
+C,Other Motor Vehicle
+D,Motor Vehicle on Other Roadway
+E,Parked Motor Vehicle
+F,Train
+G,Bicycle
+H,Animal
+I,Fixed Object
+J,Other Object
+-,Not Stated

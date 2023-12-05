@@ -1,0 +1,10 @@
+id,name
+1,Incorporated (less than 2500)
+2,Incorporated (2500 - 10000)
+3,Incorporated (10000 - 25000)
+4,Incorporated (25000 - 50000)
+5,Incorporated (50000 - 100000)
+6,Incorporated (100000 - 250000)
+7,Incorporated (over 250000) 
+9,Unincorporated (Rural)
+0,University (Private Property)

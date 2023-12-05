@@ -1,0 +1,10 @@
+id,name
+1,CHP State Highway
+2,CHP County Road Line
+3,CHP County Road Area
+4,Schoolbus on City Roadway (CHP Adm Beat 901)
+5,Schoolbus not on Public Roadway (CHP Adm Beat 903)
+6,"Offroad (Unimproved) (CHP Adm Beat 906, 907)"
+7,Vista Point or Rest Area (CHP Adm Beat 903) or Scales or Inspection Facility (CHP Com Beat 860-898)
+8,Other Public Access (Improved) (CHP Adm Beat 903)
+0,Not CHP

@@ -1,0 +1,11 @@
+key,name
+EF,Eastbound Off Ramp
+EO,Eastbound On Ramp
+FR,From
+NO,Northbound On Ramp
+SF,Southbound Off Ramp
+SO,Southbound On Ramp
+TO,To
+WF,Westbound Off Ramp
+WO,Westbound On Ramp
+-,Not Stated

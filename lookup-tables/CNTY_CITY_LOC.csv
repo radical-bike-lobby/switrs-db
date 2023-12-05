@@ -1,0 +1,541 @@
+key,county,city
+0100,Stanislaus,
+0101,Alameda,Alameda
+0102,Alameda,Berkeley
+0103,Alameda,Berkeley
+0104,San Mateo,Menlo Park
+0105,Alameda,Fremont
+0106,Alameda,Hayward
+0107,Alameda,Livermore
+0108,Alameda,Newark
+0109,Alameda,Oakland
+0110,Alameda,Oakland
+0111,Alameda,Pleasanton
+0112,Alameda,San Leandro
+0113,Alameda,Union City
+0115,Santa Clara,Milpitas
+0198,Alameda,Dublin
+0200,Alpine,South Lake Tahoe
+0300,Amador,Sutter Creek
+0301,Amador,Sutter Creek
+0302,Amador,Ione
+0303,Amador,Jackson
+0304,Amador,Plymouth
+0305,Amador,Sutter Creek
+0400,Butte,Oroville
+0401,Butte,Biggs
+0402,Butte,Chico
+0403,Butte,Gridley
+0404,Butte,Oroville
+0405,Butte,Paradise
+0500,Calaveras,San Andreas
+0501,Calaveras,San Andreas
+0600,Colusa,Arbuckle
+0601,Colusa,Colusa
+0602,Colusa,Williams
+0700,Contra Costa,Richmond
+0701,San Joaquin,
+0702,Contra Costa,Brentwood
+0703,Contra Costa,Concord
+0704,Contra Costa,Concord
+0705,Contra Costa,El Cerrito
+0706,Contra Costa,Pinole
+0707,Contra Costa,Pinole
+0708,San Joaquin,Stockton
+0709,Contra Costa,Pleasant Hill
+0710,Contra Costa,Richmond
+0711,San Mateo,
+0712,Contra Costa,Lafayette
+0713,Alameda,Oakland
+0714,Contra Costa,Martinez
+0715,Contra Costa,Lafayette
+0716,Contra Costa,Orinda
+0734,Contra Costa,Oakley
+0790,Contra Costa,Danville
+0791,Contra Costa,San Ramon
+0792,Contra Costa,Orinda
+0800,Del Norte,Crescent City
+0801,Del Norte,Crescent City
+0900,El Dorado,El Dorado Hills
+0901,Merced,Los Banos
+0902,El Dorado,South Lake Tahoe
+1000,Fresno,Fresno
+1001,Fresno,Clovis
+1002,Fresno,Coalinga
+1003,Fresno,Firebaugh
+1004,Fresno,Fowler
+1005,Fresno,Fresno
+1006,Fresno,Huron
+1007,Fresno,Kerman
+1008,Fresno,Kingsburg
+1009,Fresno,Mendota
+1010,Tulare,Visalia
+1011,Fresno,Parlier
+1012,Fresno,Reedley
+1013,Fresno,Sanger
+1014,Fresno,San Joaquin
+1015,Fresno,Selma
+1100,Glenn,Glenn
+1101,Glenn,Orland
+1102,Colusa,Maxwell
+1200,Humboldt,Fortuna
+1201,Humboldt,Arcata
+1203,Humboldt,Eureka
+1204,Humboldt,Fortuna
+1205,Humboldt,Fortuna
+1206,Humboldt,Trinidad
+1207,Humboldt,Rio Dell
+1300,Imperial,El Centro
+1301,Imperial,Brawley
+1302,Imperial,Calexico
+1303,Imperial,Calipatria
+1304,Imperial,El Centro
+1305,Imperial,Holtville
+1306,Imperial,Imperial
+1400,Inyo,Independence
+1401,Inyo,Bishop
+1500,Kern,Bakersfield
+1501,Kern,Arvin
+1502,Kern,Bakersfield
+1503,Kern,Delano
+1504,Kern,Maricopa
+1505,Kern,McFarland
+1506,Kern,Ridgecrest
+1507,Kern,Bakersfield
+1508,Kern,Taft
+1509,Kern,Tehachapi
+1510,El Dorado,Pilot Hill
+1511,Kern,California City
+1513,San Bernardino,Chino
+1515,Kern,Tehachapi
+1600,Kings,Lemoore
+1601,Kings,Corcoran
+1602,Kings,Hanford
+1603,Kings,Lemoore
+1690,Kings,Avenal
+1700,Lake,Lakeport
+1701,Lake,Kelseyville
+1702,Lake,Clearlake
+1800,Lassen,Milford
+1801,Lassen,Susanville
+1900,Los Angeles,Pacific Palisades
+1901,Ventura,Piru
+1902,Los Angeles,Arcadia
+1903,Los Angeles,Cerritos
+1904,Los Angeles,Avalon
+1905,Los Angeles,Azusa
+1906,Los Angeles,Baldwin Park
+1907,Los Angeles,Bell Gardens
+1908,Los Angeles,Long Beach
+1909,Los Angeles,Bell Gardens
+1910,Kern,Rosamond
+1911,Los Angeles,Duarte
+1912,Los Angeles,Burbank
+1913,Los Angeles,Claremont
+1914,Los Angeles,Los Angeles
+1915,Los Angeles,Compton
+1916,Los Angeles,Covina
+1917,Los Angeles,Bell Gardens
+1918,Los Angeles,Culver City
+1919,Los Angeles,Cerritos
+1920,Los Angeles,Downey
+1921,Los Angeles,Duarte
+1922,Los Angeles,El Monte
+1923,Los Angeles,Los Angeles
+1924,Los Angeles,Gardena
+1925,Los Angeles,Glendale
+1926,Los Angeles,Glendora
+1927,LosAngeles,Hawaiian Gardens
+1928,Los Angeles,South Gate
+1929,Los Angeles,Hermosa Beach
+1930,Los Angeles,Calabasas
+1931,Los Angeles,Huntington Park
+1932,Los Angeles,Whittier
+1933,Los Angeles,Inglewood
+1934,Los Angeles,Baldwin Park
+1935,Los Angeles,Paramount
+1936,Los Angeles,Santa Fe Springs
+1937,Los Angeles,La Puente
+1938,Los Angeles,La Verne
+1939,Los Angeles,Lawndale
+1940,Los Angeles,Lawndale
+1941,Los Angeles,Long Beach
+1942,Los Angeles,Sherman Oaks
+1943,Los Angeles,Lynwood
+1944,Los Angeles,Manhattan Beach
+1945,Los Angeles,Maywood
+1946,Los Angeles,Monrovia
+1947,Los Angeles,Montebello
+1948,Los Angeles,Alhambra
+1949,Los Angeles,Norwalk
+1950,Los Angeles,Palmdale
+1952,Los Angeles,South Gate
+1953,Los Angeles,Mt Wilson
+1954,Los Angeles,Pico Rivera
+1955,Los Angeles,Valyermo
+1956,Los Angeles,Redondo Beach
+1957,Los Angeles,Rowland Heights
+1958,Los Angeles,Palos Verdes Peninsula
+1959,Los Angeles,Rosemead
+1960,Los Angeles,La Verne
+1961,Los Angeles,Pacoima
+1962,Los Angeles,San Gabriel
+1963,Los Angeles,San Marino
+1964,Los Angeles,Santa Fe Springs
+1965,Los Angeles,Santa Monica
+1966,Los Angeles,Arcadia
+1967,Los Angeles,Long Beach
+1968,Los Angeles,Lynwood
+1969,Los Angeles,South Gate
+1970,Los Angeles,South Pasadena
+1971,Los Angeles,San Gabriel
+1972,Los Angeles,Gardena
+1973,Los Angeles,Los Angeles
+1974,Los Angeles,Walnut
+1975,Los Angeles,West Covina
+1976,Los Angeles,Whittier
+1977,Los Angeles,Carson
+1979,Los Angeles,Los Angeles
+1980,Los Angeles,Rancho Palos Verdes
+1985,Los Angeles,Canyon Country
+1989,Los Angeles,Agoura Hills
+1990,Los Angeles,Diamond Bar
+1991,Los Angeles,La Canada Flintridge
+1992,Los Angeles,Lancaster
+1993,Los Angeles,Westlake Village
+1994,Los Angeles,Agoura Hills
+1995,Los Angeles,Malibu
+1999,Los Angeles,La Habra
+2000,Madera,Oakhurst
+2001,Madera,Chowchilla
+2002,Madera,Madera
+2100,Marin,Sausalito
+2101,Marin,Belvedere-Tiburon
+2102,Marin,Corte Madera
+2103,Marin,Fairfax
+2104,Marin,Larkspur
+2105,Marin,Mill Valley
+2106,Marin,Novato
+2107,Marin,Ross
+2108,Marin,San Anselmo
+2109,Marin,San Rafael
+2110,Marin,Sausalito
+2111,San Mateo,Belmont
+2200,Mariposa,Catheys Valley
+2300,Mendocino,Ukiah
+2301,Mendocino,Fort Bragg
+2302,Mendocino,Point Arena
+2303,Mendocino,Ukiah
+2304,Mendocino,Willits
+2400,Merced,Snelling
+2401,Merced,Atwater
+2402,Merced,Dos Palos
+2403,Merced,Gustine
+2404,Merced,Livingston
+2405,Merced,Los Banos
+2406,Merced,Merced
+2500,Modoc,McArthur
+2501,Modoc,Alturas
+2600,Mono,Bishop
+2601,Mono,Mammoth Lakes
+2700,Monterey,Carmel-by-the-Sea
+2701,Monterey,Carmel-by-the-Sea
+2702,Monterey,Monterey
+2703,Monterey,Gonzales
+2704,Monterey,Greenfield
+2705,Monterey,King City
+2706,Monterey,Salinas
+2707,Monterey,Pacific Grove
+2708,Monterey,Salinas
+2709,Monterey,Seaside
+2710,Monterey,Seaside
+2711,Monterey,Soledad
+2712,Monterey,Marina
+2800,Napa,St Helena
+2801,Napa,Calistoga
+2802,Napa,Napa
+2803,Napa,St Helena
+2804,Napa,Yountville
+2805,Napa,American Canyon
+2900,Nevada,Grass Valley
+2901,Nevada,Grass Valley
+2902,Nevada,Nevada City
+2908,Nevada,Truckee
+3000,Orange,Ladera Ranch
+3001,Orange,Anaheim
+3002,Orange,Brea
+3003,Orange,Buena Park
+3004,Orange,Costa Mesa
+3005,Orange,Cypress
+3006,Orange,Buena Park
+3007,Orange,Huntington Beach
+3008,Orange,Fullerton
+3009,Orange,San Clemente
+3010,Orange,Huntington Beach
+3011,Orange,Laguna Beach
+3012,Orange,La Habra
+3013,Orange,Los Alamitos
+3014,San Diego,Camp Pendleton Marine Corps Base
+3015,Orange,Santa Ana
+3016,Orange,Placentia
+3017,Orange,San Clemente
+3018,Orange,San Juan Capistrano
+3019,Orange,Santa Ana
+3020,Orange,Seal Beach
+3021,Orange,Anaheim
+3022,Orange,Tustin
+3023,Orange,Villa Park
+3024,Orange,Westminster
+3025,Orange,Yorba Linda
+3026,Orange,Irvine
+3028,Orange,Laguna Niguel
+3029,San Diego,Camp Pendleton Marine Corps Base
+3040,Orange,Laguna Hills
+3045,Orange,Laguna Hills
+3048,Orange,Rancho Santa Margarita
+3049,Orange,Aliso Viejo
+3050,Orange,Laguna Hills
+3051,Orange,Laguna Hills
+3100,Sacramento,Sloughhouse
+3101,Placer,Auburn
+3102,Placer,Colfax
+3103,Placer,Lincoln
+3104,Placer,Rocklin
+3105,Placer,Roseville
+3106,Placer,Newcastle
+3200,Plumas,Blairsden-Graeagle
+3201,Sierra,Sierraville
+3300,Riverside,Perris
+3301,Riverside,Banning
+3302,Riverside,Beaumont
+3303,Riverside,Blythe
+3305,Riverside,
+3306,Riverside,North Palm Springs
+3307,San Diego,Fallbrook
+3308,Riverside,
+3309,Riverside,Desert Hot Springs
+3310,Riverside,Norco
+3311,Riverside,North Palm Springs
+3312,Riverside,Perris
+3313,Riverside,Riverside
+3314,Riverside,San Jacinto
+3315,Riverside,Corona
+3316,Riverside,Palm Desert
+3317,Riverside,Rancho Mirage
+3318,Riverside,Indio
+3325,Riverside,Cathedral City
+3335,Riverside,Temecula
+3336,Riverside,Calimesa
+3337,Riverside,Menifee
+3341,Riverside,Menifee
+3342,Riverside,Murrieta
+3343,Riverside,Wildomar
+3344,Riverside,Corona
+3345,Riverside,Mira Loma
+3392,Riverside,La Quinta
+3394,Riverside,Moreno Valley
+3400,Sacramento,Sacramento
+3401,Sacramento,Folsom
+3402,Sacramento,Galt
+3403,Sacramento,Isleton
+3404,Sacramento,Wilton
+3450,Sacramento,Elk Grove
+3490,Sacramento,Rancho Cordova
+3496,Placer,Roseville
+3500,San Benito,San Juan Bautista
+3501,San Benito,Hollister
+3502,San Benito,Hollister
+3600,San Bernardino,Earp
+3601,San Bernardino,Barstow
+3602,San Bernardino,Chino
+3603,San Bernardino,Colton
+3604,San Bernardino,Fontana
+3605,San Bernardino,Montclair
+3606,San Bernardino,Needles
+3607,San Bernardino,Ontario
+3608,San Bernardino,Redlands
+3609,San Bernardino,Bloomington
+3610,San Bernardino,San Bernardino
+3611,San Bernardino,Upland
+3612,San Bernardino,Lake Arrowhead
+3613,San Bernardino,Adelanto
+3615,San Bernardino,San Bernardino
+3616,Kern,
+3617,San Bernardino,Twentynine Palms
+3618,San Bernardino,Highland
+3619,San Bernardino,Hesperia
+3621,San Bernardino,Apple Valley
+3630,San Bernardino,Chino Hills
+3631,San Bernardino,Yucca Valley
+3640,San Bernardino,Redlands
+3680,San Bernardino,Big Bear City
+3690,San Bernardino,Grand Terrace
+3700,San Diego,Pauma Valley
+3701,San Diego,Carlsbad
+3702,San Diego,Chula Vista
+3703,San Diego,Coronado
+3704,San Diego,San Diego
+3705,San Diego,El Cajon
+3706,San Diego,Escondido
+3707,San Diego,Imperial Beach
+3708,San Diego,La Mesa
+3709,San Diego,National City
+3710,San Diego,Oceanside
+3711,San Diego,San Diego
+3712,Orange,Irvine
+3713,San Diego,San Marcos
+3720,San Diego,Lemon Grove
+3780,San Diego,San Diego
+3781,San Diego,Santee
+3782,San Diego,Cardiff by the Sea
+3783,San Diego,Solana Beach
+3801,San Francisco,San Francisco
+3900,San Joaquin,Stockton
+3901,San Joaquin,Escalon
+3902,San Joaquin,Lodi
+3903,San Joaquin,Manteca
+3904,San Joaquin,Ripon
+3905,San Joaquin,Stockton
+3906,San Joaquin,Tracy
+3920,San Joaquin,Lathrop
+4000,San Luis Obispo,Nipomo
+4001,San Luis Obispo,Arroyo Grande
+4002,San Luis Obispo,Grover Beach
+4003,San Luis Obispo,Morro Bay
+4004,San Luis Obispo,Paso Robles
+4005,San Luis Obispo,Pismo Beach
+4006,San Luis Obispo,San Luis Obispo
+4008,San Luis Obispo,Atascadero
+4100,San Mateo,Half Moon Bay
+4101,San Mateo,Atherton
+4102,San Mateo,Belmont
+4103,San Mateo,South San Francisco
+4104,San Mateo,Burlingame
+4105,San Mateo,Daly City
+4106,San Mateo,Daly City
+4107,San Mateo,Half Moon Bay
+4108,San Mateo,Burlingame
+4109,San Mateo,Palo Alto
+4110,San Mateo,Millbrae
+4111,San Mateo,Pacifica
+4112,Santa Cruz,Los Gatos
+4113,San Mateo,Redwood City
+4114,San Mateo,San Bruno
+4115,San Mateo,San Carlos
+4116,San Mateo,San Mateo
+4117,San Mateo,South San Francisco
+4118,San Mateo,Redwood City
+4120,San Mateo,San Mateo
+4127,San Mateo,Palo Alto
+4200,Santa Barbara,Los Alamos
+4201,Santa Barbara,
+4202,Santa Barbara,Lompoc
+4203,Santa Barbara,Santa Barbara
+4204,Santa Barbara,Santa Maria
+4205,Santa Barbara,Carpinteria
+4206,Santa Barbara,Solvang
+4212,Santa Barbara,Buellton
+4214,Santa Barbara,Goleta
+4300,Santa Clara,Gilroy
+4302,Santa Clara,Campbell
+4303,Santa Clara,Cupertino
+4304,Santa Clara,Gilroy
+4305,Santa Clara,Los Altos
+4306,Santa Clara,Los Altos
+4307,Santa Clara,Los Gatos
+4308,Santa Clara,Milpitas
+4309,Santa Clara,Los Gatos
+4310,Santa Clara,Morgan Hill
+4311,Santa Clara,Mountain View
+4312,Santa Clara,Palo Alto
+4313,Santa Clara,San Jose
+4314,Santa Clara,
+4315,Santa Clara,Saratoga
+4316,Santa Clara,Sunnyvale
+4400,Santa Cruz,Los Gatos
+4401,Monterey,
+4402,Santa Cruz,Capitola
+4403,Santa Cruz,Watsonville
+4404,Santa Cruz,Scotts Valley
+4500,Shasta,Lakehead
+4501,Shasta,Anderson
+4502,Shasta,Redding
+4580,Shasta,Shasta Lake
+4600,Sierra,Calpine
+4601,Sierra,Loyalton
+4700,Siskiyou,Mt Shasta
+4701,Siskiyou,Dorris
+4702,Siskiyou,Dunsmuir
+4703,Siskiyou,Forks of Salmon
+4704,Siskiyou,Fort Jones
+4705,Siskiyou,Montague
+4706,Siskiyou,Mt Shasta
+4707,Siskiyou,Tulelake
+4708,Siskiyou,Weed
+4709,Siskiyou,Montague
+4800,Sonoma,Sebastopol
+4801,Solano,Benicia
+4802,Solano,Dixon
+4803,Solano,Fairfield
+4804,Solano,Rio Vista
+4805,Solano,Fairfield
+4806,Solano,Vacaville
+4807,Solano,Vallejo
+4900,Sonoma,Petaluma
+4901,Sonoma,Cloverdale
+4902,Sonoma,Cotati
+4903,Sonoma,Healdsburg
+4904,Sonoma,Rohnert Park
+4905,Sonoma,Santa Rosa
+4906,Sonoma,Sebastopol
+4907,Sonoma,Sonoma
+4908,Sonoma,Petaluma
+4980,Sonoma,Windsor
+5000,Stanislaus,Modesto
+5001,Stanislaus,Modesto
+5002,Stanislaus,Modesto
+5003,Stanislaus,Newman
+5004,Stanislaus,Oakdale
+5005,Stanislaus,Patterson
+5006,Stanislaus,Modesto
+5007,Stanislaus,Turlock
+5008,Stanislaus,Waterford
+5009,Merced,Merced
+5100,Sutter,Pleasant Grove
+5101,Sutter,Live Oak
+5102,Sutter,Yuba City
+5200,Tehama,Mill Creek
+5201,Tehama,Corning
+5202,Tehama,Red Bluff
+5203,Tehama,Tehama
+5300,Trinity,Douglas City
+5400,Tulare,Visalia
+5401,Tulare,Dinuba
+5402,Kings,Hanford
+5403,Tulare,Farmersville
+5404,Tulare,Lindsay
+5405,Tulare,Porterville
+5406,Tulare,Exeter
+5407,Tulare,Visalia
+5408,Yolo,Woodland
+5500,Tuolumne,Twain Harte
+5501,Tuolumne,Sonora
+5600,Ventura,Simi Valley
+5601,Ventura,Camarillo
+5602,Ventura,Fillmore
+5603,Ventura,Ojai
+5604,Ventura,Oxnard
+5605,Ventura,Port Hueneme
+5606,Ventura,Santa Paula
+5607,Ventura,Newbury Park
+5608,Ventura,Ventura
+5609,Ventura,Simi Valley
+5690,Ventura,Thousand Oaks
+5700,Yolo,Davis
+5701,Yolo,Davis
+5702,Yolo,Winters
+5703,Yolo,Woodland
+5704,Yolo,West Sacramento
+5800,Yuba,Olivehurst
+5801,Yuba,Marysville
+5802,Yuba,Wheatland

@@ -1,0 +1,27 @@
+key,name
+01,Driving or Bicycling Under the Influence of Alcohol or Drug
+02,Impeding Traffic 
+03,Unsafe Speed
+04,Following Too Closely
+05,Wrong Side of Road
+06,Improper Passing
+07,Unsafe Lane Change
+08,Improper Turning
+09,Automobile Right of Way
+10,Pedestrian Right of Way
+11,Pedestrian Violation
+12,Traffic Signals and Signs
+13,Hazardous Parking
+14,Lights
+15,Brakes
+16,Other Equipment
+17,Other Hazardous Violation
+18,Other Than Driver (or Pedestrian)
+19,
+20,
+21,Unsafe Starting or Backing
+22,Other Improper Driving
+23,Pedestrian or “Other” Under the Influence of Alcohol or Drug
+24,Fell Asleep
+00,Unknown
+-,Not Stated

@@ -1,0 +1,9 @@
+key,name
+A,No Pedestrian Involved
+B,Crossing in Crosswalk at Intersection
+C,Crossing in Crosswalk Not at Intersection
+D,Crossing Not in Crosswalk
+E,"In Road, Including Shoulder"
+F,Not in Road
+G,Approaching/Leaving School Bus
+-,Not Stated
