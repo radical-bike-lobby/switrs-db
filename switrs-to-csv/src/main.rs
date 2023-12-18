@@ -16,15 +16,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let db = Connection::open_with_flags(args.records_db, OpenFlags::SQLITE_OPEN_READ_ONLY)?;
 
-    let mut stmt = db.prepare(
-        r#"
-SELECT case_id as case_id FROM collisions LIMIT 1
-"#,
-    )?;
+    let mut stmt = db.prepare("SELECT * FROM collisions")?;
     let collisions = stmt.query_map([], |row| Collision::try_from(row))?;
 
     for collision in collisions {
-        println!("Found collision {:?}", collision);
+        println!("Found collision {:?}", collision?);
     }
 
     Ok(())

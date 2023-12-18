@@ -13,5 +13,10 @@ humantime-serde = "1.1.1"
 rusqlite = { version = "0.30.0", features = ["bundled", "time"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-time = "0.3.30"
+time = { version = "0.3.30", features = [
+    "parsing",
+    "formatting",
+    "serde",
+    "serde-human-readable",
+] }
 thiserror = "1.0.50"

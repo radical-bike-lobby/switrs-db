@@ -1,5 +1,8 @@
+use std::error::Error;
+
 use derive_builder::Builder;
-use rusqlite::Row;
+use rusqlite::{types::Type, Row};
+use time::{macros::format_description, Time, Weekday};
 
 /// Based off the schema from the SWITRS collisions table.
 ///
@@ -124,12 +127,12 @@ pub struct Collision {
     /// Includes blanks and nulls
     pub caltrans_county: String,
     ///   [CALTRANS_DISTRICT] INTEGER,
-    pub caltrans_district: usize,
+    pub caltrans_district: Option<usize>,
     ///   [STATE_ROUTE] INTEGER,
     /// 0 = Not State Highway
-    pub state_route: usize,
+    pub state_route: Option<usize>,
     ///   [POSTMILE] FLOAT,
-    pub postmile: f32,
+    pub postmile: Option<f32>,
     ///   [LOCATION_TYPE] TEXT REFERENCES [LOCATION_TYPE]([key]),
     /// H - Highway, I - Intersection, R - Ramp (or Collector), - or blank - Not State Highway
     pub location_type: String,
@@ -150,7 +153,7 @@ pub struct Collision {
     ///   [COLLISION_SEVERITY] INTEGER REFERENCES [COLLISION_SEVERITY]([id]),
     /// the injury level severity of the collision (highest level of injury in collision)
     /// 1 - Fatal, 2 - Injury (Severe), 3 - Injury (Other Visible), 4 - Injury (Complaint of Pain), 0 - PDO
-    pub collision_severity: String,
+    pub collision_severity: usize,
     ///   [NUMBER_KILLED] INTEGER,
     /// counts victims in the collision with degree of injury of 1
     pub number_killed: usize,
@@ -168,7 +171,7 @@ pub struct Collision {
     pub pcf_viol_category: String,
     ///   [PCF_VIOLATION] INTEGER,
     /// 01 - Driving or Bicycling Under the Influence of Alcohol or Drug, 02 - Impeding Traffic, 03 - Unsafe Speed, 04 - Following Too Closely, 05 - Wrong Side of Road, 06 - Improper Passing, 07 - Unsafe Lane Change, 08 - Improper Turning, 09 - Automobile Right of Way, 10 - Pedestrian Right of Way, 11 - Pedestrian Violation, 12 - Traffic Signals and Signs, 13 - Hazardous Parking, 14 - Lights, 15 - Brakes, 16 - Other Equipment, 17 - Other Hazardous Violation, 18 - Other Than Driver (or Pedestrian), 19 -, 20 -, 21 - Unsafe Starting or Backing, 22 - Other Improper Driving, 23 - Pedestrian or "Other" Under the Influence of Alcohol or Drug, 24 - Fell Asleep, 00 - Unknown, - - Not Stated
-    pub pcf_violation: usize,
+    pub pcf_violation: Option<usize>,
     ///   [PCF_VIOL_SUBSECTION] TEXT,
     pub pcf_viol_subsection: String,
     ///   [HIT_AND_RUN] TEXT,
@@ -249,13 +252,13 @@ pub struct Collision {
     ///   [COUNT_MC_INJURED] INTEGER,
     pub count_mc_injured: usize,
     ///   [PRIMARY_RAMP] TEXT REFERENCES [PRIMARY_RAMP]([key]),
-    pub primary_ramp: usize,
+    pub primary_ramp: String,
     ///   [SECONDARY_RAMP] TEXT REFERENCES [SECONDARY_RAMP]([key]),
-    pub secondary_ramp: usize,
+    pub secondary_ramp: String,
     ///   [LATITUDE] FLOAT,
-    pub latitude: f64,
+    pub latitude: Option<f64>,
     ///   [LONGITUDE] FLOAT,
-    pub longitude: f64,
+    pub longitude: Option<f64>,
     ///   [ADDRESS] TEXT,
     pub address: String,
     ///   [SEVERITY_INDEX] TEXT
@@ -266,9 +269,130 @@ impl<'a> TryFrom<&'a Row<'a>> for Collision {
     type Error = rusqlite::Error;
 
     fn try_from(row: &'a Row<'a>) -> Result<Self, Self::Error> {
+        let date = format_description!("[year]-[month]-[day]");
+
         Ok(Collision {
             case_id: row.get("CASE_ID")?,
-            ..Default::default()
+            collision_date: Some(
+                time::Date::parse(&row.get::<_, String>("COLLISION_DATE")?, date).map_err(|e| {
+                    rusqlite::Error::FromSqlConversionFailure(2, Type::Text, Box::new(e) as _)
+                })?,
+            ),
+            collision_time: Some(
+                parse_time(row.get("COLLISION_TIME")?)
+                    .map_err(|e| rusqlite::Error::FromSqlConversionFailure(3, Type::Text, e))?,
+            ),
+            officer_id: row.get("OFFICER_ID")?,
+            reporting_district: row.get("REPORTING_DISTRICT")?,
+            day_of_week: Some(
+                parse_weekday(row.get("DAY_OF_WEEK")?)
+                    .map_err(|e| rusqlite::Error::FromSqlConversionFailure(6, Type::Text, e))?,
+            ),
+            cnty_city_loc: row.get("CNTY_CITY_LOC")?,
+            primary_rd: row.get("PRIMARY_RD")?,
+            secondary_rd: row.get("SECONDARY_RD")?,
+            distance: row.get("DISTANCE")?,
+            direction: row.get("DIRECTION")?,
+            intersection: row.get("INTERSECTION")?,
+            weather_1: row.get("WEATHER_1")?,
+            weather_2: row.get("WEATHER_2")?,
+            state_hwy_ind: row.get("STATE_HWY_IND")?,
+            caltrans_county: row.get("CALTRANS_COUNTY")?,
+            caltrans_district: row.get("CALTRANS_DISTRICT").ok(),
+            state_route: row.get("STATE_ROUTE").ok(),
+            postmile: row.get("POSTMILE").ok(),
+            location_type: row.get("LOCATION_TYPE")?,
+            ramp_intersection: row.get("RAMP_INTERSECTION")?,
+            side_of_hwy: row.get("SIDE_OF_HWY")?,
+            tow_away: row.get("TOW_AWAY")?,
+            collision_severity: row.get("COLLISION_SEVERITY")?,
+            number_killed: row.get("NUMBER_KILLED")?,
+            number_injured: row.get("NUMBER_INJURED")?,
+            party_count: row.get("PARTY_COUNT")?,
+            primary_coll_factor: row.get("PRIMARY_COLL_FACTOR")?,
+            pcf_viol_category: row.get("PCF_VIOL_CATEGORY")?,
+            pcf_violation: row.get("PCF_VIOLATION").ok(),
+            pcf_viol_subsection: row.get("PCF_VIOL_SUBSECTION")?,
+            hit_and_run: row.get("HIT_AND_RUN")?,
+            type_of_collision: row.get("TYPE_OF_COLLISION")?,
+            mviw: row.get("MVIW")?,
+            ped_action: row.get("PED_ACTION")?,
+            road_surface: row.get("ROAD_SURFACE")?,
+            road_cond_1: row.get("ROAD_COND_1")?,
+            road_cond_2: row.get("ROAD_COND_2")?,
+            lighting: row.get("LIGHTING")?,
+            control_device: row.get("CONTROL_DEVICE")?,
+            pedestrian_accident: row.get("PEDESTRIAN_ACCIDENT")?,
+            bicycle_accident: row.get("BICYCLE_ACCIDENT")?,
+            motorcycle_accident: row.get("MOTORCYCLE_ACCIDENT")?,
+            truck_accident: row.get("TRUCK_ACCIDENT")?,
+            not_private_property: row.get("NOT_PRIVATE_PROPERTY")?,
+            alcohol_involved: row.get("ALCOHOL_INVOLVED")?,
+            stwd_vehtype_at_fault: row.get("STWD_VEHTYPE_AT_FAULT")?,
+            chp_vehtype_at_fault: row.get("CHP_VEHTYPE_AT_FAULT")?,
+            count_severe_inj: row.get("COUNT_SEVERE_INJ")?,
+            count_visible_inj: row.get("COUNT_VISIBLE_INJ")?,
+            count_complaint_pain: row.get("COUNT_COMPLAINT_PAIN")?,
+            count_ped_killed: row.get("COUNT_PED_KILLED")?,
+            count_ped_injured: row.get("COUNT_PED_INJURED")?,
+            count_bicyclist_killed: row.get("COUNT_BICYCLIST_KILLED")?,
+            count_bicyclist_injured: row.get("COUNT_BICYCLIST_INJURED")?,
+            count_mc_killed: row.get("COUNT_MC_KILLED")?,
+            count_mc_injured: row.get("COUNT_MC_INJURED")?,
+            primary_ramp: row.get("PRIMARY_RAMP")?,
+            secondary_ramp: row.get("SECONDARY_RAMP")?,
+            latitude: row.get("LATITUDE").ok(),
+            longitude: row.get("LONGITUDE").ok(),
+            address: row.get("ADDRESS")?,
+            severity_index: row.get("SEVERITY_INDEX")?,
         })
+    }
+}
+
+/// Parses time from an in of the form "1230", for 12:30 pm, or "130" for 130 am
+fn parse_time(time: usize) -> Result<Time, Box<dyn Error + Send + Sync + 'static>> {
+    if time > 2359 {
+        return Ok(Time::from_hms(0, 0, 0)?);
+    }
+
+    let minute = time % 100;
+    let hour = time / 100;
+
+    Ok(Time::from_hms(hour as u8, minute as u8, 0)?)
+}
+
+/// Parse the day of the week from the numerical form
+fn parse_weekday(day: usize) -> Result<Weekday, Box<dyn Error + Send + Sync + 'static>> {
+    if day > 7 {
+        Err(format!("day of week is more than 7: {day}"))?;
+    }
+
+    Ok(Weekday::Saturday.nth_next(day as u8))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_time() {
+        assert_eq!(
+            parse_time(2359).expect("parse failed"),
+            Time::from_hms(23, 59, 0).unwrap()
+        );
+        assert_eq!(
+            parse_time(101).expect("parse failed"),
+            Time::from_hms(1, 1, 0).unwrap()
+        );
+        assert_eq!(
+            parse_time(0).expect("parse failed"),
+            Time::from_hms(0, 0, 0).unwrap()
+        );
+    }
+
+    #[test]
+    fn test_parse_weekday() {
+        assert_eq!(parse_weekday(1).expect("bad day"), Weekday::Sunday);
+        assert_eq!(parse_weekday(7).expect("bad day"), Weekday::Saturday);
     }
 }
