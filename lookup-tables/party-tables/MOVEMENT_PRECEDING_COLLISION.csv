@@ -1,0 +1,20 @@
+id,name
+A,Stopped
+B,Proceeding Straight
+C,Ran Off Road
+D,Making Right Turn
+E,Making Left Turn
+F,Making U-Turn
+G,Backing
+H,Slowing/Stopping
+I,Passing Other Vehicle
+J,Changing Lanes
+K,Parking Maneuver
+L,Entering Traffic
+M,Other Unsafe Turning
+N,Crossed Into Opposing Lane
+O,Parked
+P,Merging
+Q,Traveling Wrong Way
+R,Other
+-,Not Stated
