@@ -1,0 +1,25 @@
+id,name
+A,None in Vehicle
+B,Unknown
+C,Lap Belt Used
+D,Lap Belt Not Used
+E,Shoulder Harness Used
+F,Shoulder Harness Not Used
+G,Lap/Shoulder Harness Used
+H,Lap/Shoulder Harness Not Used
+J,Passive Restraint Used
+K,Passive Restraint Not Used
+L,Air Bag Deployed
+M,Air Bag Not Deployed
+N,Other
+P,Not Required
+Q,Child Restraint in Vehicle Used
+R,Child Restraint in Vehicle Not Used
+S,"Child Restraint in Vehicle, Use Unknown"
+T,"Child Restraint in Vehicle, Improper Use"
+U,No Child Restraint in Vehicle
+V,"Driver, Motorcycle Helmet Not Used"
+W,"Driver, Motorcycle Helmet Used"
+X,"Passenger, Motorcycle Helmet Not Used"
+Y,"Passenger, Motorcycle Helmet Used"
+-,Not Stated

@@ -1,0 +1,6 @@
+id,name
+0,Not Ejected
+1,Fully Ejected
+2,Partially Ejected
+3,Unknown
+-,Not Stated

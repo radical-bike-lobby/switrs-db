@@ -1,0 +1,17 @@
+id,name
+A,Passenger Car/Station Wagon
+B,Passenger Car with Trailer
+C,Motorcycle/Scooter
+D,Pickup or Panel Truck
+E,Pickup or Panel Truck with Trailer
+F,Truck or Truck Tractor
+G,Truck or Truck Tractor with Trailer
+H,Schoolbus
+I,Other Bus
+J,Emergency Vehicle
+K,Highway Construction Equipment
+L,Bicycle
+M,Other Vehicle
+N,Pedestrian
+O,Moped
+-,Not Stated
