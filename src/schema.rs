@@ -1,6 +1,11 @@
 //! Schema operations for the SWITRS sqlite DB creation
 
-use std::{collections::HashMap, fs, path::PathBuf, str::FromStr};
+use std::{
+    collections::HashMap,
+    fs,
+    path::{Path, PathBuf},
+    str::FromStr,
+};
 
 use new_string_template::template::Template;
 use rusqlite::{params_from_iter, Connection};
@@ -19,10 +24,10 @@ pub trait NewDB {
     fn create_table(
         &self,
         name: &str,
-        table: &TableDefinition,
+        table_schema: &Path,
     ) -> Result<(), Box<dyn std::error::Error>> {
         // build the DDL expression
-        let ddl = fs::read_to_string(&table.schema)?;
+        let ddl = fs::read_to_string(table_schema)?;
         let ddl = Template::new(ddl);
         let data = {
             let mut map = HashMap::new();
@@ -32,21 +37,21 @@ pub trait NewDB {
 
         let ddl = ddl.render(&data)?;
 
-        self.connection().execute(&ddl, [])?;
+        self.connection().execute_batch(&ddl)?;
         Ok(())
     }
 
     fn load_data(
         &self,
         name: &str,
-        table: &TableDefinition,
+        table_data: &Path,
     ) -> Result<usize, Box<dyn std::error::Error>> {
         // open the csv file
         let mut csv = csv::ReaderBuilder::new()
             .quoting(true)
             .has_headers(true)
             .trim(csv::Trim::All)
-            .from_path(&table.data)?;
+            .from_path(&table_data)?;
 
         // build up the insert statement
         let (fields, values) = {
@@ -106,7 +111,7 @@ mod tests {
 
         connection
             .connection()
-            .create_table("day_of_week", &table)
+            .create_table("day_of_week", &table.schema)
             .expect("failed to create table");
 
         connection
@@ -115,7 +120,7 @@ mod tests {
 
         let count = connection
             .connection()
-            .load_data("day_of_week", &table)
+            .load_data("day_of_week", &table.data)
             .expect("failed to create table");
 
         assert_eq!(7, count);
@@ -131,7 +136,7 @@ mod tests {
 
         connection
             .connection()
-            .create_table("pcf_violation_category", &table)
+            .create_table("pcf_violation_category", &table.schema)
             .expect("failed to create table");
 
         connection
@@ -140,7 +145,7 @@ mod tests {
 
         let count = connection
             .connection()
-            .load_data("pcf_violation_category", &table)
+            .load_data("pcf_violation_category", &table.data)
             .expect("failed to create table");
 
         assert_eq!(26, count);
@@ -156,7 +161,7 @@ mod tests {
 
         connection
             .connection()
-            .create_table("primary_ramp", &table)
+            .create_table("primary_ramp", &table.schema)
             .expect("failed to create table");
 
         connection
@@ -165,9 +170,30 @@ mod tests {
 
         let count = connection
             .connection()
-            .load_data("primary_ramp", &table)
+            .load_data("primary_ramp", &table.data)
             .expect("failed to create table");
 
         assert_eq!(10, count);
+    }
+
+    #[test]
+    fn test_create_collisions() {
+        let connection = Connection::open_in_memory().expect("failed to open in memory DB");
+
+        connection
+            .connection()
+            .create_table("collisions", Path::new("schema/collisions.sql"))
+            .expect("failed to create table");
+
+        connection
+            .execute("SELECT * from collisions", [])
+            .expect("failed to execute query");
+
+        let count = connection
+            .connection()
+            .load_data("collisions", Path::new("tests/data/collisions.csv"))
+            .expect("failed to create table");
+
+        assert_eq!(6, count);
     }
 }
