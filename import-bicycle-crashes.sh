@@ -145,9 +145,9 @@ PRIMARY_COLLISION_FACTOR PCF_VIOLATION_CODE PCF_VIOLATION_CATEGORY TYPE_OF_COLLI
 PED_ACTION ROAD_SURFACE ROAD_CONDITION_1 ROAD_COND_2 LIGHTING CONTROL_DEVICE \
 STWD_VEHTYPE_AT_FAULT CHP_VEHTYPE_AT_FAULT PRIMARY_RAMP SECONDARY_RAMP
 do
-	sqlite-utils create-table records.db $TABLE key text name text --pk=key
+	sqlite-utils create-table records.db $TABLE id text name text --pk=id
 	sqlite-utils insert records.db $TABLE lookup-tables/$TABLE.csv --csv
-	sqlite-utils add-foreign-key records.db collisions $TABLE $TABLE key
+	sqlite-utils add-foreign-key records.db collisions $TABLE $TABLE id
 	sqlite-utils create-index records.db collisions $TABLE
 done	
 
