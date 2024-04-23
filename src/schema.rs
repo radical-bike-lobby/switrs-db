@@ -196,4 +196,25 @@ mod tests {
 
         assert_eq!(6, count);
     }
+
+    #[test]
+    fn test_create_parties() {
+        let connection = Connection::open_in_memory().expect("failed to open in memory DB");
+
+        connection
+            .connection()
+            .create_table("parties", Path::new("schema/parties.sql"))
+            .expect("failed to create table");
+
+        connection
+            .execute("SELECT * from parties", [])
+            .expect("failed to execute query");
+
+        let count = connection
+            .connection()
+            .load_data("parties", Path::new("tests/data/parties.csv"))
+            .expect("failed to create table");
+
+        assert_eq!(11, count);
+    }
 }
