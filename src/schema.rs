@@ -61,7 +61,12 @@ pub trait NewDB {
         table_schema: &Path,
     ) -> Result<(), Box<dyn std::error::Error>> {
         // build the DDL expression
-        let ddl = fs::read_to_string(table_schema)?;
+        let ddl = fs::read_to_string(table_schema).map_err(|e| {
+            format!(
+                "failed to read {table_schema}: {e}",
+                table_schema = table_schema.display()
+            )
+        })?;
         let ddl = Template::new(ddl);
         let data = {
             let mut map = HashMap::new();
@@ -71,7 +76,6 @@ pub trait NewDB {
         };
 
         let ddl = ddl.render(&data)?;
-
         self.connection().execute_batch(&ddl)?;
         Ok(())
     }
@@ -87,7 +91,13 @@ pub trait NewDB {
             .quoting(true)
             .has_headers(true)
             .trim(csv::Trim::All)
-            .from_path(table_data)?;
+            .from_path(table_data)
+            .map_err(|e| {
+                format!(
+                    "failed to read csv {table_data}: {e}",
+                    table_data = table_data.display()
+                )
+            })?;
 
         // build up the insert statement
         let mut field_count = 0;
