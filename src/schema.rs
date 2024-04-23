@@ -77,8 +77,8 @@ pub trait NewDB {
         // collect all the data
         let mut count = 0;
         for record in csv.into_records() {
-            let record = dbg!(record?);
-            dbg!(stmt.insert(params_from_iter(record.into_iter()))?);
+            let record = record?;
+            stmt.insert(params_from_iter(record.into_iter()))?;
             count += 1;
         }
 
@@ -143,7 +143,7 @@ mod tests {
             .load_data("pcf_violation_category", &table)
             .expect("failed to create table");
 
-        assert_eq!(5, count);
+        assert_eq!(26, count);
     }
 
     #[test]
@@ -168,6 +168,6 @@ mod tests {
             .load_data("primary_ramp", &table)
             .expect("failed to create table");
 
-        assert_eq!(5, count);
+        assert_eq!(10, count);
     }
 }
