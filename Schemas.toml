@@ -1,0 +1,2 @@
+[tables]
+day_of_week = { schema = "schemas/char-1-id.sql", data = "lookup-tables/DAY_OF_WEEK.csv" }

@@ -1,0 +1,1 @@
+CREATE TABLE {table} (id CHAR(1) PRIMARY KEY, name VARCHAR(256));
