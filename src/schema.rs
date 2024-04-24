@@ -54,6 +54,7 @@ pub trait NewDB {
             .from_path(&table_data)?;
 
         // build up the insert statement
+        let mut field_count = 0;
         let (fields, values) = {
             // construct "field = "
             let headers = csv.headers()?;
@@ -70,10 +71,15 @@ pub trait NewDB {
 
                 fields.push_str(f);
                 values.push('?');
+                field_count += 1;
             }
 
             (fields, values)
         };
+
+        if field_count == 0 {
+            return Ok(0);
+        }
 
         let insert_stmt = format!("INSERT INTO {name} ({fields}) VALUES({values})");
 
@@ -216,5 +222,26 @@ mod tests {
             .expect("failed to create table");
 
         assert_eq!(11, count);
+    }
+
+    #[test]
+    fn test_create_victims() {
+        let connection = Connection::open_in_memory().expect("failed to open in memory DB");
+
+        connection
+            .connection()
+            .create_table("victims", Path::new("schema/victims.sql"))
+            .expect("failed to create table");
+
+        connection
+            .execute("SELECT * from victims", [])
+            .expect("failed to execute query");
+
+        let count = connection
+            .connection()
+            .load_data("victims", Path::new("tests/data/victims.csv"))
+            .expect("failed to create table");
+
+        assert_eq!(21, count);
     }
 }
