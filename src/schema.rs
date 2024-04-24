@@ -13,9 +13,24 @@ use serde::Deserialize;
 
 /// Specifies which schema and data should be used for creating a table
 #[derive(Debug, Deserialize)]
-pub struct TableDefinition {
-    schema: PathBuf,
+pub struct LookupTable {
+    pk_type: String,
     data: PathBuf,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct PrimaryTables {
+    collisions: PathBuf,
+    parties: PathBuf,
+    victims: PathBuf,
+    pk_table: PathBuf,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Schema {
+    #[serde(alias = "lookup-tables")]
+    lookup_tables: HashMap<String, LookupTable>,
+    tables: PrimaryTables,
 }
 
 pub trait NewDB {
@@ -24,6 +39,7 @@ pub trait NewDB {
     fn create_table(
         &self,
         name: &str,
+        pk_type: &str,
         table_schema: &Path,
     ) -> Result<(), Box<dyn std::error::Error>> {
         // build the DDL expression
@@ -32,6 +48,7 @@ pub trait NewDB {
         let data = {
             let mut map = HashMap::new();
             map.insert("table", name);
+            map.insert("pk_type", pk_type);
             map
         };
 
@@ -108,16 +125,46 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_toml() {
+        let schemas: Schema = basic_toml::from_str(
+            r#"
+    [lookup-tables]
+    beat_type = { pk_type = "CHAR(1)", data = "lookup-tables/BEAT_TYPE.csv" }
+
+    [tables]
+    collisions = "schema/collisions.sql"
+    parties = "schema/parties.sql"
+    victims = "schema/victims.sql"
+    pk_table = "schema/pk_table.sql"
+"#,
+        )
+        .expect("failed to read toml");
+
+        assert_eq!(
+            schemas.lookup_tables["beat_type"].data,
+            Path::new("lookup-tables/BEAT_TYPE.csv")
+        );
+        assert_eq!(
+            schemas.tables.collisions,
+            Path::new("schema/collisions.sql")
+        );
+    }
+
+    #[test]
     fn test_create_table_char_1() {
         let connection = Connection::open_in_memory().expect("failed to open in memory DB");
-        let table = TableDefinition {
-            schema: PathBuf::from("schema/char-1-id.sql"),
+        let table = LookupTable {
+            pk_type: String::from("CHAR(1)"),
             data: PathBuf::from("lookup-tables/DAY_OF_WEEK.csv"),
         };
 
         connection
             .connection()
-            .create_table("day_of_week", &table.schema)
+            .create_table(
+                "day_of_week",
+                &table.pk_type,
+                Path::new("schema/pk_table.sql"),
+            )
             .expect("failed to create table");
 
         connection
@@ -135,14 +182,18 @@ mod tests {
     #[test]
     fn test_create_table_char_2() {
         let connection = Connection::open_in_memory().expect("failed to open in memory DB");
-        let table = TableDefinition {
-            schema: PathBuf::from("schema/char-2-id.sql"),
+        let table = LookupTable {
+            pk_type: String::from("CHAR(2)"),
             data: PathBuf::from("lookup-tables/PCF_VIOLATION_CATEGORY.csv"),
         };
 
         connection
             .connection()
-            .create_table("pcf_violation_category", &table.schema)
+            .create_table(
+                "pcf_violation_category",
+                &table.pk_type,
+                Path::new("schema/pk_table.sql"),
+            )
             .expect("failed to create table");
 
         connection
@@ -160,14 +211,18 @@ mod tests {
     #[test]
     fn test_create_table_varchar_2() {
         let connection = Connection::open_in_memory().expect("failed to open in memory DB");
-        let table = TableDefinition {
-            schema: PathBuf::from("schema/varchar-2-id.sql"),
+        let table = LookupTable {
+            pk_type: String::from("VARCHAR2(2)"),
             data: PathBuf::from("lookup-tables/PRIMARY_RAMP.csv"),
         };
 
         connection
             .connection()
-            .create_table("primary_ramp", &table.schema)
+            .create_table(
+                "primary_ramp",
+                &table.pk_type,
+                Path::new("schema/pk_table.sql"),
+            )
             .expect("failed to create table");
 
         connection
@@ -188,7 +243,7 @@ mod tests {
 
         connection
             .connection()
-            .create_table("collisions", Path::new("schema/collisions.sql"))
+            .create_table("collisions", "", Path::new("schema/collisions.sql"))
             .expect("failed to create table");
 
         connection
@@ -209,7 +264,7 @@ mod tests {
 
         connection
             .connection()
-            .create_table("parties", Path::new("schema/parties.sql"))
+            .create_table("parties", "", Path::new("schema/parties.sql"))
             .expect("failed to create table");
 
         connection
@@ -230,7 +285,7 @@ mod tests {
 
         connection
             .connection()
-            .create_table("victims", Path::new("schema/victims.sql"))
+            .create_table("victims", "", Path::new("schema/victims.sql"))
             .expect("failed to create table");
 
         connection
