@@ -19,23 +19,23 @@ pub struct LookupTable {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct PrimaryTables {
-    collisions: PathBuf,
-    parties: PathBuf,
-    victims: PathBuf,
-    pk_table: PathBuf,
+pub struct PrimaryTable {
+    name: String,
+    schema: PathBuf,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Schema {
+    tables: Vec<PrimaryTable>,
+    lookup_schema: PathBuf,
     #[serde(alias = "lookup-tables")]
     lookup_tables: HashMap<String, LookupTable>,
-    tables: PrimaryTables,
 }
 
 pub trait NewDB {
     fn connection(&self) -> &Connection;
 
+    /// Create a table where the name and pk_type are passed into the sql as template parameters
     fn create_table(
         &self,
         name: &str,
@@ -58,6 +58,7 @@ pub trait NewDB {
         Ok(())
     }
 
+    /// Load data into the named table from the CSV file at the given table_data path
     fn load_data(
         &self,
         name: &str,
@@ -112,6 +113,21 @@ pub trait NewDB {
 
         Ok(count)
     }
+
+    /// Initialize all the lookup tables in lookup_tables
+    fn init_lookup_tables(
+        &self,
+        lookup_tables: &HashMap<String, LookupTable>,
+        table_schema: &Path,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        for (name, table) in lookup_tables {
+            eprintln!("LOADING {name}");
+            self.create_table(name, &table.pk_type, table_schema)?;
+            self.load_data(name, &table.data)?;
+        }
+
+        Ok(())
+    }
 }
 
 impl NewDB for Connection {
@@ -128,14 +144,14 @@ mod tests {
     fn test_toml() {
         let schemas: Schema = basic_toml::from_str(
             r#"
+    tables = [
+        {name = "collisions", schema = "schema/collisions.sql" }
+    ]
+
+    lookup_schema = "schema/pk_table.sql"
+
     [lookup-tables]
     beat_type = { pk_type = "CHAR(1)", data = "lookup-tables/BEAT_TYPE.csv" }
-
-    [tables]
-    collisions = "schema/collisions.sql"
-    parties = "schema/parties.sql"
-    victims = "schema/victims.sql"
-    pk_table = "schema/pk_table.sql"
 "#,
         )
         .expect("failed to read toml");
@@ -144,10 +160,7 @@ mod tests {
             schemas.lookup_tables["beat_type"].data,
             Path::new("lookup-tables/BEAT_TYPE.csv")
         );
-        assert_eq!(
-            schemas.tables.collisions,
-            Path::new("schema/collisions.sql")
-        );
+        assert_eq!(schemas.tables[0].schema, Path::new("schema/collisions.sql"));
     }
 
     #[test]
@@ -240,6 +253,15 @@ mod tests {
     #[test]
     fn test_create_collisions() {
         let connection = Connection::open_in_memory().expect("failed to open in memory DB");
+
+        // initialize all the lookup tables
+        let schemas: Schema =
+            basic_toml::from_slice(&fs::read("Schemas.toml").expect("failed to read toml"))
+                .expect("toml is bad");
+        connection
+            .connection()
+            .init_lookup_tables(&schemas.lookup_tables, &schemas.lookup_schema)
+            .expect("failed to init lookup tables");
 
         connection
             .connection()

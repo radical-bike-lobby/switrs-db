@@ -1,3 +1,16 @@
+# List of tables with full schema, in order of how they are loaded
+# these are initialized after lookup-tables to allow for foreign key creation
+
+tables = [
+    { name = "cnty_city_loc", schema = "schema/count_city.sql" },
+    { name = "collisions", schema = "schema/collisions.sql" },
+    { name = "parties", schema = "schema/parties.sql" },
+    { name = "victims", schema = "schema/victims.sql" },
+]
+
+# schema definition for the lookup tables, has parameters of {name} and {pk_type}
+lookup_schema = "schema/pk_table.sql"
+
 [lookup-tables]
 # for collisions
 beat_type = { pk_type = "CHAR(1)", data = "lookup-tables/BEAT_TYPE.csv" }
@@ -5,10 +18,10 @@ chp_beat_class = { pk_type = "CHAR(1)", data = "lookup-tables/CHP_BEAT_CLASS.csv
 chp_beat_type = { pk_type = "CHAR(1)", data = "lookup-tables/CHP_BEAT_TYPE.csv" }
 chp_shift = { pk_type = "CHAR(1)", data = "lookup-tables/CHP_SHIFT.csv" }
 chp_vehtype_at_fault = { pk_type = "CHAR(2)", data = "lookup-tables/CHP_VEHTYPE_AT_FAULT.csv" }
-cnty_city_loc = { pk_type = "VARCHAR2(4)", data = "lookup-tables/CNTY_CITY_LOC.csv" }
+# cnty_city_loc = { pk_type = "VARCHAR2(4)", data = "lookup-tables/CNTY_CITY_LOC.csv" } # In primary tables above
 collision_severity = { pk_type = "CHAR(1)", data = "lookup-tables/COLLISION_SEVERITY.csv" }
 control_device = { pk_type = "CHAR(1)", data = "lookup-tables/CONTROL_DEVICE.csv" }
-day_of_week = { pk_type = "pk_types/char-1-id.sql", data = "lookup-tables/DAY_OF_WEEK.csv" }
+day_of_week = { pk_type = "CHAR(1)", data = "lookup-tables/DAY_OF_WEEK.csv" }
 direction = { pk_type = "CHAR(1)", data = "lookup-tables/DIRECTION.csv" }
 hit_and_run = { pk_type = "CHAR(1)", data = "lookup-tables/HIT_AND_RUN.csv" }
 lighting = { pk_type = "CHAR(1)", data = "lookup-tables/LIGHTING.csv" }
@@ -58,9 +71,3 @@ victim_role = { pk_type = "CHAR(1)", data = "lookup-tables/victim-tables/VICTIM_
 victim_safety_equipment = { pk_type = "CHAR(1)", data = "lookup-tables/victim-tables/VICTIM_SAFETY_EQUIPMENT.csv" }
 victim_seating_position = { pk_type = "CHAR(1)", data = "lookup-tables/victim-tables/VICTIM_SEATING_POSITION.csv" }
 victim_sex = { pk_type = "CHAR(1)", data = "lookup-tables/victim-tables/VICTIM_SEX.csv" }
-
-[tables]
-collisions = "schema/collisions.sql"
-parties = "schema/parties.sql"
-victims = "schema/victims.sql"
-pk_table = "schema/pk_table.sql"

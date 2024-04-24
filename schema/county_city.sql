@@ -1,0 +1,1 @@
+CREATE TABLE cnty_city_loc (id VARCHAR(4) PRIMARY KEY, county VARCHAR(256), city VARCHAR(256));

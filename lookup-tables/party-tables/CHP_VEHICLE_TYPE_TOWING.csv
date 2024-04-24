@@ -1,5 +1,5 @@
 id,name
-01,Passenger Car, Station Wagon, or Jeep
+01,"Passenger Car, Station Wagon, or Jeep"
 02,Motorcycle
 03,Motor-Driven Cycle (< 15 hp)
 04,Bicycle
@@ -48,13 +48,13 @@ id,name
 63,Youth Bus
 64,School Pupil Activity Bus I (eff. 2002)
 65,School Pupil Activity Bus II (eff. 2002) 
-66 – School Bus – No Pupils on Board (eff 2002)
+66,– School Bus – No Pupils on Board (eff 2002)
 71,"Passenger Car,Hazardous Materials Only"
 72,"Pickups and Panels,Hazardous Materials Only"
 73,"Pickups and Campers,Hazardous Materials Only"
 75,"Truck Tractor,Hazardous Materials Only"
 76,"Two-Axle Truck,Hazardous Materials Only"
-77,Three or More Axle Truck,Hazardous Materials Only
+77,"Three or More Axle Truck,Hazardous Materials Only"
 78,"Two-Axle Tank Truck,Hazardous Materials Only"
 79,"Three-Axle Tank Truck,Hazardous Materials Only"
 81,"Passenger Car,Hazardous Waste or Waste/Material Combo"
