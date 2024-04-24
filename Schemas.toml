@@ -67,6 +67,6 @@ victim_age = { pk_type = "INTEGER", data = "lookup-tables/victim-tables/VICTIM_A
 victim_degree_of_injury = { pk_type = "CHAR(1)", data = "lookup-tables/victim-tables/VICTIM_DEGREE_OF_INJURY.csv" }
 victim_ejected = { pk_type = "CHAR(1)", data = "lookup-tables/victim-tables/VICTIM_EJECTED.csv" }
 victim_role = { pk_type = "CHAR(1)", data = "lookup-tables/victim-tables/VICTIM_ROLE.csv" }
-victim_safety_equipment = { pk_type = "CHAR(1)", data = "lookup-tables/victim-tables/VICTIM_SAFETY_EQUIPMENT.csv" }
+victim_safety_equip = { pk_type = "CHAR(1)", data = "lookup-tables/victim-tables/VICTIM_SAFETY_EQUIPMENT.csv" }
 victim_seating_position = { pk_type = "CHAR(1)", data = "lookup-tables/victim-tables/VICTIM_SEATING_POSITION.csv" }
 victim_sex = { pk_type = "CHAR(1)", data = "lookup-tables/victim-tables/VICTIM_SEX.csv" }

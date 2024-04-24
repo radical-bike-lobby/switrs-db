@@ -34,24 +34,24 @@ CREATE TABLE parties (
     special_info_g, -- Undocumented, unused?
     PRIMARY KEY(case_id, party_number), -- Multiple parties in each case
     -- add foreign keys
-    FOREIGN KEY(case_id) REFERENCES collisions(case_id),
-    FOREIGN KEY(party_type) REFERENCES party_type(id),
-    FOREIGN KEY(party_sex) REFERENCES party_sex(id),
+    FOREIGN KEY(case_id) REFERENCES collisions(case_id)
+    FOREIGN KEY(party_type) REFERENCES party_type(id)
+    FOREIGN KEY(party_sex) REFERENCES party_sex(id)
     FOREIGN KEY(party_sobriety) REFERENCES party_sobriety(id)
-    FOREIGN KEY(party_drug_physical) REFERENCES party_drug_physical(id),
-    FOREIGN KEY(dir_of_travel) REFERENCES dir_of_travel(id),
-    FOREIGN KEY(party_safety_equip_1) REFERENCES party_safety_equip(id),
-    FOREIGN KEY(party_safety_equip_2) REFERENCES party_safety_equip(id),
-    FOREIGN KEY(finan_respons) REFERENCES finan_respons(id),
-    FOREIGN KEY(sp_info_1) REFERENCES sp_info_1(id),
-    FOREIGN KEY(sp_info_2) REFERENCES sp_info_2(id),
-    FOREIGN KEY(sp_info_3) REFERENCES sp_info_3(id),
-    FOREIGN KEY(oaf_violation_code) REFERENCES oaf_violation_code(id),
-    FOREIGN KEY(oaf_viol_cat) REFERENCES oaf_viol_cat(id),
-    FOREIGN KEY(oaf_1) REFERENCES oaf(id),
-    FOREIGN KEY(oaf_2) REFERENCES oaf(id),
-    FOREIGN KEY(move_pre_acc) REFERENCES move_pre_acc(id),
-    FOREIGN KEY(chp_veh_type_towing) REFERENCES chp_veh_type_towing(id),
-    FOREIGN KEY(chp_veh_type_towed) REFERENCES chp_veh_type_towed(id),
+    FOREIGN KEY(party_drug_physical) REFERENCES party_drug_physical(id)
+    FOREIGN KEY(dir_of_travel) REFERENCES dir_of_travel(id)
+    FOREIGN KEY(party_safety_equip_1) REFERENCES party_safety_equip(id)
+    FOREIGN KEY(party_safety_equip_2) REFERENCES party_safety_equip(id)
+    FOREIGN KEY(finan_respons) REFERENCES finan_respons(id)
+    FOREIGN KEY(sp_info_1) REFERENCES sp_info_1(id)
+    FOREIGN KEY(sp_info_2) REFERENCES sp_info_2(id)
+    FOREIGN KEY(sp_info_3) REFERENCES sp_info_3(id)
+    FOREIGN KEY(oaf_violation_code) REFERENCES oaf_violation_code(id)
+    FOREIGN KEY(oaf_viol_cat) REFERENCES oaf_viol_cat(id)
+    FOREIGN KEY(oaf_1) REFERENCES oaf(id)
+    FOREIGN KEY(oaf_2) REFERENCES oaf(id)
+    FOREIGN KEY(move_pre_acc) REFERENCES move_pre_acc(id)
+    FOREIGN KEY(chp_veh_type_towing) REFERENCES chp_veh_type_towing(id)
+    FOREIGN KEY(chp_veh_type_towed) REFERENCES chp_veh_type_towed(id)
     FOREIGN KEY(race) REFERENCES race(id)
 );

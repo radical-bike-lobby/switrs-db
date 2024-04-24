@@ -10,4 +10,13 @@ CREATE TABLE victims (
     victim_safety_equip_2 CHAR(1), -- Victim Safety Equipment 2, same as Victim Safety Equipment 1 above (eff. Jan 2002) (see lookup-tables/victim-tables/VICTIM_SAFETY_EQUIPMENT.csv)
     victim_ejected CHAR(1), -- Victim Ejected (see lookup-tables/victim-tables/VICTIM_EJECTED.csv)
     PRIMARY KEY(case_id, party_number, victim_seating_position) -- Multiple parties in each case
+    -- add foreign keys
+    FOREIGN KEY(case_id, party_number) REFERENCES parties(case_id, party_number)
+    FOREIGN KEY(victim_role) REFERENCES victim_role(id)
+    FOREIGN KEY(victim_sex) REFERENCES victim_sex(id)
+    FOREIGN KEY(victim_degree_of_injury) REFERENCES victim_degree_of_injury(id)
+    FOREIGN KEY(victim_seating_position) REFERENCES victim_seating_position(id)
+    FOREIGN KEY(victim_safety_equip_1) REFERENCES victim_safety_equip(id)
+    FOREIGN KEY(victim_safety_equip_2) REFERENCES victim_safety_equip(id)
+    FOREIGN KEY(victim_ejected) REFERENCES victim_ejected(id)
 );

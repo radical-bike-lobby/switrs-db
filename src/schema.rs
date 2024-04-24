@@ -116,7 +116,7 @@ pub trait NewDB {
                 .map(|s| if s.is_empty() { None } else { Some(s) });
             stmt.insert(params_from_iter(record_iter))
                 .inspect_err(|e| {
-                    print!("error on insert: {e}, row: ");
+                    print!("error on insert into {name}: {e}, row: ");
                     for (field, value) in headers_record.iter().zip(record.iter()) {
                         print!("{field}={value},");
                     }
@@ -135,7 +135,7 @@ pub trait NewDB {
         table_schema: &Path,
     ) -> Result<(), Box<dyn std::error::Error>> {
         for (name, table) in lookup_tables {
-            eprintln!("LOADING {name}");
+            println!("LOADING {name}");
             let schema = table.schema.as_deref().unwrap_or(table_schema);
             self.create_table(name, &table.pk_type, schema)?;
             self.load_data(name, &table.data)?;
@@ -295,7 +295,7 @@ mod tests {
             .load_data("collisions", Path::new("tests/data/collisions.csv"))
             .expect("failed to create table");
 
-        assert_eq!(6, count);
+        assert_eq!(40, count);
     }
 
     #[test]
@@ -321,6 +321,7 @@ mod tests {
             .load_data("collisions", Path::new("tests/data/collisions.csv"))
             .expect("failed to create table");
 
+        // parties
         connection
             .connection()
             .create_table("parties", "", Path::new("schema/parties.sql"))
@@ -335,13 +336,43 @@ mod tests {
             .load_data("parties", Path::new("tests/data/parties.csv"))
             .expect("failed to create table");
 
-        assert_eq!(11, count);
+        assert_eq!(80, count);
     }
 
     #[test]
     fn test_create_victims() {
         let connection = Connection::open_in_memory().expect("failed to open in memory DB");
 
+        // initialize all the lookup tables
+        let schemas: Schema =
+            basic_toml::from_slice(&fs::read("Schemas.toml").expect("failed to read toml"))
+                .expect("toml is bad");
+        connection
+            .connection()
+            .init_lookup_tables(&schemas.lookup_tables, &schemas.lookup_schema)
+            .expect("failed to init lookup tables");
+
+        // load test data into the collisions table
+        connection
+            .connection()
+            .create_table("collisions", "", Path::new("schema/collisions.sql"))
+            .expect("failed to create table");
+        connection
+            .connection()
+            .load_data("collisions", Path::new("tests/data/collisions.csv"))
+            .expect("failed to create table");
+
+        // load parties
+        connection
+            .connection()
+            .create_table("parties", "", Path::new("schema/parties.sql"))
+            .expect("failed to create table");
+        connection
+            .connection()
+            .load_data("parties", Path::new("tests/data/parties.csv"))
+            .expect("failed to create table");
+
+        // test victims
         connection
             .connection()
             .create_table("victims", "", Path::new("schema/victims.sql"))
@@ -356,6 +387,6 @@ mod tests {
             .load_data("victims", Path::new("tests/data/victims.csv"))
             .expect("failed to create table");
 
-        assert_eq!(21, count);
+        assert_eq!(39, count);
     }
 }

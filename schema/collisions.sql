@@ -76,34 +76,34 @@ CREATE TABLE collisions (
     latitude FLOAT,
     longitude FLOAT,
     -- all foreign keys
-    FOREIGN KEY(day_of_week) REFERENCES day_of_week(id),
-    FOREIGN KEY(chp_shift) REFERENCES chp_shift(id),
-    FOREIGN KEY(population) REFERENCES population(id),
-    FOREIGN KEY(cnty_city_loc) REFERENCES cnty_city_loc(id),
-    FOREIGN KEY(special_cond) REFERENCES special_cond(id),
-    FOREIGN KEY(beat_type) REFERENCES beat_type(id),
-    FOREIGN KEY(chp_beat_type) REFERENCES chp_beat_type(id),
-    FOREIGN KEY(direction) REFERENCES direction(id),
-    FOREIGN KEY(weather_1) REFERENCES weather(id),
-    FOREIGN KEY(weather_2) REFERENCES weather(id),
-    FOREIGN KEY(location_type) REFERENCES location_type(id),
-    FOREIGN KEY(ramp_intersection) REFERENCES ramp_intersection(id),
-    FOREIGN KEY(side_of_hwy) REFERENCES side_of_hwy(id),
-    FOREIGN KEY(collision_severity) REFERENCES collision_severity(id),
-    FOREIGN KEY(primary_coll_factor) REFERENCES primary_coll_factor(id),
-    FOREIGN KEY(pcf_code_of_viol) REFERENCES pcf_code_of_viol(id),
-    FOREIGN KEY(pcf_viol_category) REFERENCES pcf_viol_category(id),
-    FOREIGN KEY(hit_and_run) REFERENCES hit_and_run(id),
+    FOREIGN KEY(day_of_week) REFERENCES day_of_week(id)
+    FOREIGN KEY(chp_shift) REFERENCES chp_shift(id)
+    FOREIGN KEY(population) REFERENCES population(id)
+    FOREIGN KEY(cnty_city_loc) REFERENCES cnty_city_loc(id)
+    FOREIGN KEY(special_cond) REFERENCES special_cond(id)
+    FOREIGN KEY(beat_type) REFERENCES beat_type(id)
+    FOREIGN KEY(chp_beat_type) REFERENCES chp_beat_type(id)
+    FOREIGN KEY(direction) REFERENCES direction(id)
+    FOREIGN KEY(weather_1) REFERENCES weather(id)
+    FOREIGN KEY(weather_2) REFERENCES weather(id)
+    FOREIGN KEY(location_type) REFERENCES location_type(id)
+    FOREIGN KEY(ramp_intersection) REFERENCES ramp_intersection(id)
+    FOREIGN KEY(side_of_hwy) REFERENCES side_of_hwy(id)
+    FOREIGN KEY(collision_severity) REFERENCES collision_severity(id)
+    FOREIGN KEY(primary_coll_factor) REFERENCES primary_coll_factor(id)
+    FOREIGN KEY(pcf_code_of_viol) REFERENCES pcf_code_of_viol(id)
+    FOREIGN KEY(pcf_viol_category) REFERENCES pcf_viol_category(id)
+    FOREIGN KEY(hit_and_run) REFERENCES hit_and_run(id)
     FOREIGN KEY(type_of_collision) REFERENCES type_of_collision(id)
-    FOREIGN KEY(mviw) REFERENCES mviw(id),
-    FOREIGN KEY(ped_action) REFERENCES ped_action(id),
+    FOREIGN KEY(mviw) REFERENCES mviw(id)
+    FOREIGN KEY(ped_action) REFERENCES ped_action(id)
     FOREIGN KEY(road_surface) REFERENCES road_surface(id)
-    FOREIGN KEY(road_cond_1) REFERENCES road_cond(id),
-    FOREIGN KEY(road_cond_2) REFERENCES road_cond(id),
-    FOREIGN KEY(lighting) REFERENCES lighting(id),
-    FOREIGN KEY(control_device) REFERENCES control_device(id),
-    FOREIGN KEY(stwd_vehtype_at_fault) REFERENCES stwd_vehtype_at_fault(id),
-    FOREIGN KEY(chp_vehtype_at_fault) REFERENCES chp_vehtype_at_fault(id),
+    FOREIGN KEY(road_cond_1) REFERENCES road_cond(id)
+    FOREIGN KEY(road_cond_2) REFERENCES road_cond(id)
+    FOREIGN KEY(lighting) REFERENCES lighting(id)
+    FOREIGN KEY(control_device) REFERENCES control_device(id)
+    FOREIGN KEY(stwd_vehtype_at_fault) REFERENCES stwd_vehtype_at_fault(id)
+    FOREIGN KEY(chp_vehtype_at_fault) REFERENCES chp_vehtype_at_fault(id)
     FOREIGN KEY(primary_ramp) REFERENCES primary_ramp(id)
     FOREIGN KEY(secondary_ramp) REFERENCES secondary_ramp(id)
 );
