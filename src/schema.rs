@@ -16,6 +16,7 @@ use serde::Deserialize;
 pub struct LookupTable {
     pk_type: String,
     data: PathBuf,
+    schema: Option<PathBuf>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -73,13 +74,14 @@ pub trait NewDB {
 
         // build up the insert statement
         let mut field_count = 0;
+        let headers_record;
         let (fields, values) = {
             // construct "field = "
-            let headers = csv.headers()?;
+            headers_record = csv.headers()?.clone();
             let mut fields = String::new();
             let mut values = String::new();
             let mut first = true;
-            for f in headers.iter() {
+            for f in &headers_record {
                 if !first {
                     fields.push_str(", ");
                     values.push_str(", ");
@@ -107,7 +109,19 @@ pub trait NewDB {
         let mut count = 0;
         for record in csv.into_records() {
             let record = record?;
-            stmt.insert(params_from_iter(record.into_iter()))?;
+
+            // convert empty strings to NULL, should we change '-' to NULL as well?
+            let record_iter = record
+                .into_iter()
+                .map(|s| if s.is_empty() { None } else { Some(s) });
+            stmt.insert(params_from_iter(record_iter))
+                .inspect_err(|e| {
+                    print!("error on insert: {e}, row: ");
+                    for (field, value) in headers_record.iter().zip(record.iter()) {
+                        print!("{field}={value},");
+                    }
+                    println!("");
+                })?;
             count += 1;
         }
 
@@ -122,7 +136,8 @@ pub trait NewDB {
     ) -> Result<(), Box<dyn std::error::Error>> {
         for (name, table) in lookup_tables {
             eprintln!("LOADING {name}");
-            self.create_table(name, &table.pk_type, table_schema)?;
+            let schema = table.schema.as_deref().unwrap_or(table_schema);
+            self.create_table(name, &table.pk_type, schema)?;
             self.load_data(name, &table.data)?;
         }
 
@@ -169,6 +184,7 @@ mod tests {
         let table = LookupTable {
             pk_type: String::from("CHAR(1)"),
             data: PathBuf::from("lookup-tables/DAY_OF_WEEK.csv"),
+            schema: None,
         };
 
         connection
@@ -198,6 +214,7 @@ mod tests {
         let table = LookupTable {
             pk_type: String::from("CHAR(2)"),
             data: PathBuf::from("lookup-tables/PCF_VIOLATION_CATEGORY.csv"),
+            schema: None,
         };
 
         connection
@@ -227,6 +244,7 @@ mod tests {
         let table = LookupTable {
             pk_type: String::from("VARCHAR2(2)"),
             data: PathBuf::from("lookup-tables/PRIMARY_RAMP.csv"),
+            schema: None,
         };
 
         connection
