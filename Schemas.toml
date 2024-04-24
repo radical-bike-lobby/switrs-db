@@ -43,23 +43,23 @@ type_of_collision = { pk_type = "CHAR(1)", data = "lookup-tables/TYPE_OF_COLLISI
 weather = { pk_type = "CHAR(1)", data = "lookup-tables/WEATHER_1.csv" }
 
 # for parties
-chp_vehicle_type_towed = { pk_type = "CHAR(2)", data = "lookup-tables/party-tables/CHP_VEHICLE_TYPE_TOWED.csv" }
-chp_vehicle_type_towing = { pk_type = "CHAR(2)", data = "lookup-tables/party-tables/CHP_VEHICLE_TYPE_TOWING.csv" }
-direction_of_travel = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/DIRECTION_OF_TRAVEL.csv" }
-financial_responsibility = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/FINANCIAL_RESPONSIBILITY.csv" }
-movement_preceding_collision = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/MOVEMENT_PRECEDING_COLLISION.csv" }
-oaf_violation_category = { pk_type = "CHAR(2)", data = "lookup-tables/party-tables/OAF_VIOLATION_CATEGORY.csv" }
+chp_veh_type_towed = { pk_type = "CHAR(2)", data = "lookup-tables/party-tables/CHP_VEHICLE_TYPE_TOWED.csv" }
+chp_veh_type_towing = { pk_type = "CHAR(2)", data = "lookup-tables/party-tables/CHP_VEHICLE_TYPE_TOWING.csv" }
+dir_of_travel = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/DIRECTION_OF_TRAVEL.csv" }
+finan_respons = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/FINANCIAL_RESPONSIBILITY.csv" }
+move_pre_acc = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/MOVEMENT_PRECEDING_COLLISION.csv" }
+oaf = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/OTHER_ASSOCIATED_FACTOR.csv" }
+oaf_viol_cat = { pk_type = "CHAR(2)", data = "lookup-tables/party-tables/OAF_VIOLATION_CATEGORY.csv" }
 oaf_violation_code = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/OAF_VIOLATION_CODE.csv" }
-other_associated_factor = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/OTHER_ASSOCIATED_FACTOR.csv" }
 party_drug_physical = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/PARTY_DRUG_PHYSICAL.csv" }
-party_race = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/PARTY_RACE.csv" }
-party_safety_equipment = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/PARTY_SAFETY_EQUIPMENT.csv" }
+party_safety_equip = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/PARTY_SAFETY_EQUIPMENT.csv" }
 party_sex = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/PARTY_SEX.csv" }
 party_sobriety = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/PARTY_SOBRIETY.csv" }
 party_type = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/PARTY_TYPE.csv" }
-special_information_1 = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/SPECIAL_INFORMATION_1.csv" }
-special_information_2 = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/SPECIAL_INFORMATION_2.csv" }
-special_information_3 = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/SPECIAL_INFORMATION_3.csv" }
+race = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/PARTY_RACE.csv" }
+sp_info_1 = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/SPECIAL_INFORMATION_1.csv" }
+sp_info_2 = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/SPECIAL_INFORMATION_2.csv" }
+sp_info_3 = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/SPECIAL_INFORMATION_3.csv" }
 statewide_vehicle_type = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/STATEWIDE_VEHICLE_TYPE.csv" }
 
 # for victims

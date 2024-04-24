@@ -302,6 +302,25 @@ mod tests {
     fn test_create_parties() {
         let connection = Connection::open_in_memory().expect("failed to open in memory DB");
 
+        // initialize all the lookup tables
+        let schemas: Schema =
+            basic_toml::from_slice(&fs::read("Schemas.toml").expect("failed to read toml"))
+                .expect("toml is bad");
+        connection
+            .connection()
+            .init_lookup_tables(&schemas.lookup_tables, &schemas.lookup_schema)
+            .expect("failed to init lookup tables");
+
+        // load test data into the collisions table
+        connection
+            .connection()
+            .create_table("collisions", "", Path::new("schema/collisions.sql"))
+            .expect("failed to create table");
+        connection
+            .connection()
+            .load_data("collisions", Path::new("tests/data/collisions.csv"))
+            .expect("failed to create table");
+
         connection
             .connection()
             .create_table("parties", "", Path::new("schema/parties.sql"))
