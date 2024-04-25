@@ -9,7 +9,7 @@ CREATE TABLE victims (
     victim_safety_equip_1 CHAR(1), -- Victim Safety Equipment 1 (see lookup-tables/victim-tables/VICTIM_SAFETY_EQUIPMENT.csv)
     victim_safety_equip_2 CHAR(1), -- Victim Safety Equipment 2, same as Victim Safety Equipment 1 above (eff. Jan 2002) (see lookup-tables/victim-tables/VICTIM_SAFETY_EQUIPMENT.csv)
     victim_ejected CHAR(1), -- Victim Ejected (see lookup-tables/victim-tables/VICTIM_EJECTED.csv)
-    PRIMARY KEY(case_id, party_number, victim_seating_position) -- Multiple parties in each case
+    -- PRIMARY KEY(case_id, party_number, victim_seating_position) -- there is no primary key on this table
     -- add foreign keys
     FOREIGN KEY(case_id, party_number) REFERENCES parties(case_id, party_number)
     FOREIGN KEY(victim_role) REFERENCES victim_role(id)
@@ -20,3 +20,5 @@ CREATE TABLE victims (
     FOREIGN KEY(victim_safety_equip_2) REFERENCES victim_safety_equip(id)
     FOREIGN KEY(victim_ejected) REFERENCES victim_ejected(id)
 );
+CREATE INDEX idx_victims_case_id ON victims(case_id);
+CREATE INDEX idx_victims_case_id_party_number ON victims(case_id, party_number);

@@ -55,3 +55,4 @@ CREATE TABLE parties (
     FOREIGN KEY(chp_veh_type_towed) REFERENCES chp_veh_type_towed(id)
     FOREIGN KEY(race) REFERENCES race(id)
 );
+CREATE INDEX idx_parties_case_id ON parties(case_id);
