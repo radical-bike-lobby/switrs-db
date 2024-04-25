@@ -172,6 +172,7 @@ pub trait NewDB {
 
             let data = data.join(&table.raw_data);
 
+            println!("LOADING {table_name}");
             self.connection()
                 .create_table(table_name, "", &table.schema)?;
             self.connection().load_data(table_name, &data)?;

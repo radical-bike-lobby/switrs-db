@@ -17,4 +17,5 @@ O,Parked
 P,Merging
 Q,Traveling Wrong Way
 R,Other
+S,Undefined in RawData_template
 -,Not Stated
