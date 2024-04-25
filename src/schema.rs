@@ -1,15 +1,13 @@
 //! Schema operations for the SWITRS sqlite DB creation
 
 use std::{
-    cmp::max,
     collections::HashMap,
     fs,
     path::{Path, PathBuf},
-    str::FromStr,
 };
 
 use new_string_template::template::Template;
-use rusqlite::{params_from_iter, Connection, Row};
+use rusqlite::{params_from_iter, Connection};
 use serde::Deserialize;
 
 /// Specifies which schema and data should be used for creating a table
@@ -20,12 +18,16 @@ pub struct LookupTable {
     schema: Option<PathBuf>,
 }
 
+/// Primary Table definition as defined in the Toml
 #[derive(Debug, Deserialize)]
 pub struct PrimaryTable {
+    /// Path to the schema file for the table, like collisions.sql
     schema: PathBuf,
+    /// The file name (relative to where the raw data was extracted) of the csv data
     raw_data: PathBuf,
 }
 
+/// Schema defenition as loaded from the Toml
 #[derive(Debug, Deserialize)]
 pub struct Schema {
     #[serde(alias = "table-order")]
@@ -38,6 +40,7 @@ pub struct Schema {
 }
 
 impl Schema {
+    /// Loads the Schema definition from the Toml at the given path
     pub fn from_toml_file(path: &Path) -> Result<Self, Box<dyn std::error::Error>> {
         let schema = basic_toml::from_slice(&fs::read(path)?)?;
 
@@ -45,7 +48,9 @@ impl Schema {
     }
 }
 
+/// Extensions to the DB Connection to initialize the DB
 pub trait NewDB {
+    /// Get access to the DB connection (generally will be Self)
     fn connection(&self) -> &Connection;
 
     /// Create a table where the name and pk_type are passed into the sql as template parameters
@@ -82,7 +87,7 @@ pub trait NewDB {
             .quoting(true)
             .has_headers(true)
             .trim(csv::Trim::All)
-            .from_path(&table_data)?;
+            .from_path(table_data)?;
 
         // build up the insert statement
         let mut field_count = 0;
@@ -132,7 +137,7 @@ pub trait NewDB {
                     for (field, value) in headers_record.iter().zip(record.iter()) {
                         print!("{field}={value},");
                     }
-                    println!("");
+                    println!();
                 })?;
             count += 1;
         }
@@ -156,6 +161,7 @@ pub trait NewDB {
         Ok(())
     }
 
+    /// Create and load all the tables defined in the Schema
     fn load_from_schema(
         &self,
         schemas: &Schema,

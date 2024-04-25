@@ -1,7 +1,9 @@
+//! CLI for generating the Sqlite DB from the SWITRS database
+
 use std::path::PathBuf;
 
 use clap::Parser;
-use rusqlite::Connection;
+use rusqlite::{Connection, DatabaseName};
 
 use switrs_db::schema::{NewDB, Schema};
 
@@ -39,6 +41,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let schemas = Schema::from_toml_file(&schema)?;
     connection.load_from_schema(&schemas, &data_path)?;
+
+    println!(
+        "Successfully imported data, writing DB to {sqlite_file}",
+        sqlite_file = sqlite_file.display()
+    );
+    connection.backup(DatabaseName::Main, sqlite_file, None)?;
 
     Ok(())
 }
