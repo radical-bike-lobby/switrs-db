@@ -1,6 +1,7 @@
 //! Schema operations for the SWITRS sqlite DB creation
 
 use std::{
+    cmp::max,
     collections::HashMap,
     fs,
     path::{Path, PathBuf},
@@ -8,7 +9,7 @@ use std::{
 };
 
 use new_string_template::template::Template;
-use rusqlite::{params_from_iter, Connection};
+use rusqlite::{params_from_iter, Connection, Row};
 use serde::Deserialize;
 
 /// Specifies which schema and data should be used for creating a table
@@ -21,16 +22,27 @@ pub struct LookupTable {
 
 #[derive(Debug, Deserialize)]
 pub struct PrimaryTable {
-    name: String,
     schema: PathBuf,
+    raw_data: PathBuf,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Schema {
-    tables: Vec<PrimaryTable>,
+    #[serde(alias = "table-order")]
+    table_order: Vec<String>,
+    tables: HashMap<String, PrimaryTable>,
+    #[serde(alias = "lookup-schema")]
     lookup_schema: PathBuf,
     #[serde(alias = "lookup-tables")]
     lookup_tables: HashMap<String, LookupTable>,
+}
+
+impl Schema {
+    pub fn from_toml_file(path: &Path) -> Result<Self, Box<dyn std::error::Error>> {
+        let schema = basic_toml::from_slice(&fs::read(path)?)?;
+
+        Ok(schema)
+    }
 }
 
 pub trait NewDB {
@@ -116,7 +128,7 @@ pub trait NewDB {
                 .map(|s| if s.is_empty() { None } else { Some(s) });
             stmt.insert(params_from_iter(record_iter))
                 .inspect_err(|e| {
-                    print!("error on insert into {name}: {e}, row: ");
+                    print!("error on insert into {name}: {e}, row {count}:");
                     for (field, value) in headers_record.iter().zip(record.iter()) {
                         print!("{field}={value},");
                     }
@@ -143,6 +155,30 @@ pub trait NewDB {
 
         Ok(())
     }
+
+    fn load_from_schema(
+        &self,
+        schemas: &Schema,
+        data: &Path,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        self.connection()
+            .init_lookup_tables(&schemas.lookup_tables, &schemas.lookup_schema)?;
+
+        for table_name in &schemas.table_order {
+            let table: &PrimaryTable = schemas
+                .tables
+                .get(table_name)
+                .ok_or_else(|| format!("table missing from [tables]: {table_name}"))?;
+
+            let data = data.join(&table.raw_data);
+
+            self.connection()
+                .create_table(table_name, "", &table.schema)?;
+            self.connection().load_data(table_name, &data)?;
+        }
+
+        Ok(())
+    }
 }
 
 impl NewDB for Connection {
@@ -157,25 +193,13 @@ mod tests {
 
     #[test]
     fn test_toml() {
-        let schemas: Schema = basic_toml::from_str(
-            r#"
-    tables = [
-        {name = "collisions", schema = "schema/collisions.sql" }
-    ]
+        let schemas = Schema::from_toml_file(Path::new("Schemas.toml")).expect("toml is bad");
 
-    lookup_schema = "schema/pk_table.sql"
-
-    [lookup-tables]
-    beat_type = { pk_type = "CHAR(1)", data = "lookup-tables/BEAT_TYPE.csv" }
-"#,
-        )
-        .expect("failed to read toml");
-
+        assert_eq!(schemas.table_order[0], "collisions");
         assert_eq!(
-            schemas.lookup_tables["beat_type"].data,
-            Path::new("lookup-tables/BEAT_TYPE.csv")
+            schemas.tables["collisions"].schema,
+            Path::new("schema/collisions.sql")
         );
-        assert_eq!(schemas.tables[0].schema, Path::new("schema/collisions.sql"));
     }
 
     #[test]
@@ -273,9 +297,7 @@ mod tests {
         let connection = Connection::open_in_memory().expect("failed to open in memory DB");
 
         // initialize all the lookup tables
-        let schemas: Schema =
-            basic_toml::from_slice(&fs::read("Schemas.toml").expect("failed to read toml"))
-                .expect("toml is bad");
+        let schemas = Schema::from_toml_file(Path::new("Schemas.toml")).expect("toml is bad");
         connection
             .connection()
             .init_lookup_tables(&schemas.lookup_tables, &schemas.lookup_schema)
@@ -303,9 +325,7 @@ mod tests {
         let connection = Connection::open_in_memory().expect("failed to open in memory DB");
 
         // initialize all the lookup tables
-        let schemas: Schema =
-            basic_toml::from_slice(&fs::read("Schemas.toml").expect("failed to read toml"))
-                .expect("toml is bad");
+        let schemas = Schema::from_toml_file(Path::new("Schemas.toml")).expect("toml is bad");
         connection
             .connection()
             .init_lookup_tables(&schemas.lookup_tables, &schemas.lookup_schema)
@@ -344,9 +364,7 @@ mod tests {
         let connection = Connection::open_in_memory().expect("failed to open in memory DB");
 
         // initialize all the lookup tables
-        let schemas: Schema =
-            basic_toml::from_slice(&fs::read("Schemas.toml").expect("failed to read toml"))
-                .expect("toml is bad");
+        let schemas = Schema::from_toml_file(Path::new("Schemas.toml")).expect("toml is bad");
         connection
             .connection()
             .init_lookup_tables(&schemas.lookup_tables, &schemas.lookup_schema)

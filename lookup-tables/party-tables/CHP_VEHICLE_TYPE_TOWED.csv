@@ -65,6 +65,8 @@ id,name
 87,"Three or More Axle Truck,Hazardous Waste or Waste/Material Combo"
 88,"Two-Axle Tank Truck,Hazardous Waste or Waste/Material Combo"
 89,"Three-Axle Tank Truck,Hazardous Waste or Waste/Material Combo"
+91,Undefined in RawData_template
+93,Undefined in RawData_template
 94,Motorized Transportation Device
 95,"Miscellaneous Non-Motorized Vehicle(Ridden Animal, Animal-Drawn Conveyance, Train, Or Building) With Victim"
 96,Miscellaneous Motorized Vehicle (Golf Cart)

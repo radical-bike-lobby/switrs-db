@@ -1,5 +1,5 @@
 CREATE TABLE collisions (
-    case_id VARCHAR2(19) PRIMARY KEY, -- Case Id: the unique identifier of the collision report (barcode beginning 2002; 19 digit code prior to 2002)
+    case_id VARCHAR2(19), -- Case Id: the unique identifier of the collision report (barcode beginning 2002; 19 digit code prior to 2002)
     accident_year INTEGER, -- Collision Year: the year when the collision occurred
     proc_date INTEGER, -- Process Date: (YYYYMMDD)
     juris INTEGER, -- Jurisdiction: Four numerics assigned by DOJ
@@ -75,6 +75,7 @@ CREATE TABLE collisions (
     secondary_ramp, -- Same as above (see lookup-tables/PRIMARY_RAMP.csv)
     latitude FLOAT,
     longitude FLOAT,
+    PRIMARY KEY(case_id)
     -- all foreign keys
     FOREIGN KEY(day_of_week) REFERENCES day_of_week(id)
     FOREIGN KEY(chp_shift) REFERENCES chp_shift(id)

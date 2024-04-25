@@ -26,6 +26,7 @@ id,name
 25,Truck Tractor
 26,Two-Axle Truck
 27,Three-Axle Truck
+33,Two Trailers (or 31 + 32)
 41,Ambulance
 42,Dune Buggy
 43,Fire Truck (not rescue)
@@ -65,6 +66,7 @@ id,name
 87,Three or More Axle Truck - Hazardous Waste or Waste/Material Combo
 88,Two-Axle Tank Truck - Hazardous Waste or Waste/Material Combo
 89,Three-Axle Tank Truck - Hazardous Waste or Waste/Material Combo
+91,Undefined in RawData_template
 94,Motorized Transportation Device
 95,"Miscellaneous Non-Motorized Vehicle(Ridden Animal, Animal-Drawn Conveyance, Train, Or Building) With Victim"
 96,Miscellaneous Motorized Vehicle (Golf Cart)
