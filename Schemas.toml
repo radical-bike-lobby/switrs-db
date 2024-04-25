@@ -15,7 +15,7 @@ victims = { schema = "schema/victims.sql", raw_data = "VictimRecords.txt" }
 
 # list of tables with names/descriptions of all associated record data
 [lookup-tables]
-# for collisions (names match the fields in the collisions table)
+# for collisions (names match the fields in the collisions table and are used for their table names)
 beat_type = { pk_type = "CHAR(1)", data = "lookup-tables/BEAT_TYPE.csv" }
 chp_beat_class = { pk_type = "CHAR(1)", data = "lookup-tables/CHP_BEAT_CLASS.csv" }
 chp_beat_type = { pk_type = "CHAR(1)", data = "lookup-tables/CHP_BEAT_TYPE.csv" }

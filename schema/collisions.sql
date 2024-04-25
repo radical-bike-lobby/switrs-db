@@ -108,3 +108,99 @@ CREATE TABLE collisions (
     FOREIGN KEY(primary_ramp) REFERENCES primary_ramp(id)
     FOREIGN KEY(secondary_ramp) REFERENCES secondary_ramp(id)
 );
+
+CREATE VIEW collisions_view (
+    case_id,
+    day,
+    chp_shift,
+    population,
+    city,
+    special_cond,
+    beat_type,
+    chp_beat_type,
+    direction,
+    weather_1,
+    weather_2,
+    location_type,
+    ramp_intersection,
+    side_of_hwy,
+    collision_severity,
+    primary_coll_factor,
+    pcf_code_of_viol,
+    pcf_viol_category,
+    hit_and_run,
+    type_of_collision,
+    mviw,
+    ped_action,
+    road_surface,
+    road_cond_1,
+    road_cond_2,
+    lighting,
+    control_device,
+    stwd_vehtype_at_fault,
+    chp_vehtype_at_fault,
+    primary_ramp,
+    secondary_ramp
+) AS SELECT 
+    c.case_id,
+    day_of_week.name,
+    chp_shift.name,
+    population.name,
+    cnty_city_loc.city,
+    special_cond.name,
+    beat_type.name,
+    chp_beat_type.name,
+    direction.name,
+    weather_1.name,
+    weather_2.name,
+    location_type.name,
+    ramp_intersection.name,
+    side_of_hwy.name,
+    collision_severity.name,
+    primary_coll_factor.name,
+    pcf_code_of_viol.name,
+    pcf_viol_category.name,
+    hit_and_run.name,
+    type_of_collision.name,
+    mviw.name,
+    ped_action.name,
+    road_surface.name,
+    road_cond_1.name,
+    road_cond_2.name,
+    lighting.name,
+    control_device.name,
+    stwd_vehtype_at_fault.name,
+    chp_vehtype_at_fault.name,
+    primary_ramp.name,
+    secondary_ramp.name
+FROM collisions AS c
+LEFT JOIN day_of_week ON c.day_of_week = day_of_week.id
+LEFT JOIN chp_shift ON c.chp_shift = chp_shift.id
+LEFT JOIN population ON c.population = population.id
+LEFT JOIN cnty_city_loc ON c.cnty_city_loc = cnty_city_loc.id
+LEFT JOIN special_cond ON c.special_cond = special_cond.id
+LEFT JOIN beat_type ON c.beat_type = beat_type.id
+LEFT JOIN chp_beat_type ON c.chp_beat_type = chp_beat_type.id
+LEFT JOIN direction ON c.direction = direction.id
+LEFT JOIN weather AS weather_1 ON c.weather_1 = weather_1.id
+LEFT JOIN weather AS weather_2 ON c.weather_2 = weather_2.id
+LEFT JOIN location_type ON c.location_type = location_type.id
+LEFT JOIN ramp_intersection ON c.ramp_intersection = ramp_intersection.id
+LEFT JOIN side_of_hwy ON c.side_of_hwy = side_of_hwy.id
+LEFT JOIN collision_severity ON c.collision_severity = collision_severity.id
+LEFT JOIN primary_coll_factor ON c.primary_coll_factor = primary_coll_factor.id
+LEFT JOIN pcf_code_of_viol ON c.pcf_code_of_viol = pcf_code_of_viol.id
+LEFT JOIN pcf_viol_category ON c.pcf_viol_category = pcf_viol_category.id
+LEFT JOIN hit_and_run ON c.hit_and_run = hit_and_run.id
+LEFT JOIN type_of_collision ON c.type_of_collision = type_of_collision.id
+LEFT JOIN mviw ON c.mviw = mviw.id
+LEFT JOIN ped_action ON c.ped_action = ped_action.id
+LEFT JOIN road_surface ON c.road_surface = road_surface.id
+LEFT JOIN road_cond AS road_cond_1 ON c.road_cond_1 = road_cond_1.id
+LEFT JOIN road_cond AS road_cond_2 ON c.road_cond_2 = road_cond_2.id
+LEFT JOIN lighting ON c.lighting = lighting.id
+LEFT JOIN control_device ON c.control_device = control_device.id
+LEFT JOIN stwd_vehtype_at_fault ON c.stwd_vehtype_at_fault = stwd_vehtype_at_fault.id
+LEFT JOIN chp_vehtype_at_fault ON c.chp_vehtype_at_fault = chp_vehtype_at_fault.id
+LEFT JOIN primary_ramp ON c.primary_ramp = primary_ramp.id
+LEFT JOIN secondary_ramp ON c.secondary_ramp = secondary_ramp.id;
