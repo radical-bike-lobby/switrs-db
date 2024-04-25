@@ -254,7 +254,7 @@ mod tests {
         let connection = Connection::open_in_memory().expect("failed to open in memory DB");
         let table = LookupTable {
             pk_type: String::from("CHAR(2)"),
-            data: PathBuf::from("lookup-tables/PCF_VIOLATION_CATEGORY.csv"),
+            data: PathBuf::from("lookup-tables/PCF_VIOL_CATEGORY.csv"),
             schema: None,
         };
 
@@ -306,7 +306,7 @@ mod tests {
             .load_data("primary_ramp", &table.data)
             .expect("failed to create table");
 
-        assert_eq!(10, count);
+        assert_eq!(12, count);
     }
 
     #[test]
