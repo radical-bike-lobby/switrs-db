@@ -1,10 +1,10 @@
 CREATE TABLE collisions (
     case_id VARCHAR2(19), -- Case Id: the unique identifier of the collision report (barcode beginning 2002; 19 digit code prior to 2002)
     accident_year INTEGER, -- Collision Year: the year when the collision occurred
-    proc_date INTEGER, -- Process Date: (YYYYMMDD)
+    proc_date TEXT, -- Process Date: (YYYYMMDD)
     juris INTEGER, -- Jurisdiction: Four numerics assigned by DOJ
-    collision_date INTEGER, -- Collision Date: the date when the collision occurred (YYYYMMDD)	
-    collision_time INTEGER, -- Collision Time: the time when the collision occurred (24 hour time)	Data may appear with no leading zero(s).
+    collision_date TEXT, -- Collision Date: the date when the collision occurred (YYYYMMDD)	
+    collision_time TEXT, -- Collision Time: the time when the collision occurred (24 hour time)	Data may appear with no leading zero(s).
     officer_id VARCHAR2(8), -- Officer Id
     reporting_district VARCHAR2(5), -- Reporting District
     day_of_week CHAR(1), -- Day of Week: the code for the day of the week when the collision occurred (see lookup-tables/DAY_OF_WEEK.csv)
@@ -111,6 +111,11 @@ CREATE TABLE collisions (
 
 CREATE VIEW collisions_view (
     case_id,
+    address,
+    proc_date,
+    collision_datetime,
+    latitude,
+    longitude,
     day,
     chp_shift,
     population,
@@ -143,6 +148,11 @@ CREATE VIEW collisions_view (
     secondary_ramp
 ) AS SELECT 
     c.case_id,
+    format("%s %sBerkeley, CA", c.primary_rd, iif(c.secondary_rd, format("and %s ", c.secondary_rd), "")),
+    format("%s-%s-%s", substr(proc_date,1,4), substr(proc_date,5,2), substr(proc_date,7,2)),
+    format("%s-%s-%sT%s:%s", substr(collision_date,1,4), substr(collision_date,5,2), substr(collision_date,7,2), substr(collision_time,1,2), substr(collision_time,3,2)),
+    latitude,
+    longitude * (-1),
     day_of_week.name,
     chp_shift.name,
     population.name,
@@ -174,6 +184,7 @@ CREATE VIEW collisions_view (
     primary_ramp.name,
     secondary_ramp.name
 FROM collisions AS c
+-- join all the foreign key tables
 LEFT JOIN day_of_week ON c.day_of_week = day_of_week.id
 LEFT JOIN chp_shift ON c.chp_shift = chp_shift.id
 LEFT JOIN population ON c.population = population.id
@@ -203,4 +214,7 @@ LEFT JOIN control_device ON c.control_device = control_device.id
 LEFT JOIN stwd_vehtype_at_fault ON c.stwd_vehtype_at_fault = stwd_vehtype_at_fault.id
 LEFT JOIN chp_vehtype_at_fault ON c.chp_vehtype_at_fault = chp_vehtype_at_fault.id
 LEFT JOIN primary_ramp ON c.primary_ramp = primary_ramp.id
-LEFT JOIN secondary_ramp ON c.secondary_ramp = secondary_ramp.id;
+LEFT JOIN secondary_ramp ON c.secondary_ramp = secondary_ramp.id
+WHERE 
+c.cnty_city_loc IN ("0102", "0103") -- see lookup-tables/CNTY_CITY_LOC.csv
+;
