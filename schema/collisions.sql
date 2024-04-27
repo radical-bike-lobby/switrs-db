@@ -105,8 +105,8 @@ CREATE TABLE collisions (
     FOREIGN KEY(control_device) REFERENCES control_device(id)
     FOREIGN KEY(stwd_vehtype_at_fault) REFERENCES stwd_vehtype_at_fault(id)
     FOREIGN KEY(chp_vehtype_at_fault) REFERENCES chp_vehtype_at_fault(id)
-    FOREIGN KEY(primary_ramp) REFERENCES primary_ramp(id)
-    FOREIGN KEY(secondary_ramp) REFERENCES secondary_ramp(id)
+    FOREIGN KEY(primary_ramp) REFERENCES ramp(id)
+    FOREIGN KEY(secondary_ramp) REFERENCES ramp(id)
 );
 
 CREATE VIEW collisions_view (
@@ -239,8 +239,8 @@ LEFT JOIN lighting ON c.lighting = lighting.id
 LEFT JOIN control_device ON c.control_device = control_device.id
 LEFT JOIN stwd_vehtype_at_fault ON c.stwd_vehtype_at_fault = stwd_vehtype_at_fault.id
 LEFT JOIN chp_vehtype_at_fault ON c.chp_vehtype_at_fault = chp_vehtype_at_fault.id
-LEFT JOIN primary_ramp ON c.primary_ramp = primary_ramp.id
-LEFT JOIN secondary_ramp ON c.secondary_ramp = secondary_ramp.id
+LEFT JOIN ramp primary_ramp ON c.primary_ramp = primary_ramp.id
+LEFT JOIN ramp secondary_ramp ON c.secondary_ramp = secondary_ramp.id
 WHERE 
 c.cnty_city_loc IN ("0102", "0103") -- see lookup-tables/CNTY_CITY_LOC.csv
 ;

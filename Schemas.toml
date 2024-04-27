@@ -36,12 +36,10 @@ pcf_viol_category = { pk_type = "CHAR(2)", data = "lookup-tables/PCF_VIOL_CATEGO
 ped_action = { pk_type = "CHAR(1)", data = "lookup-tables/PED_ACTION.csv" }
 population = { pk_type = "CHAR(1)", data = "lookup-tables/POPULATION.csv" }
 primary_coll_factor = { pk_type = "CHAR(1)", data = "lookup-tables/PRIMARY_COLL_FACTOR.csv" }
-primary_ramp = { pk_type = "VARCHAR2(2)", data = "lookup-tables/PRIMARY_RAMP.csv" }
+ramp = { pk_type = "VARCHAR2(2)", data = "lookup-tables/PRIMARY_RAMP.csv" }
 ramp_intersection = { pk_type = "CHAR(1)", data = "lookup-tables/RAMP_INTERSECTION.csv" }
 road_cond = { pk_type = "CHAR(1)", data = "lookup-tables/ROAD_COND_1.csv" }
 road_surface = { pk_type = "CHAR(1)", data = "lookup-tables/ROAD_SURFACE.csv" }
-# TODO: same data as primary_ramp
-secondary_ramp = { pk_type = "VARCHAR2(2)", data = "lookup-tables/SECONDARY_RAMP.csv" }
 side_of_hwy = { pk_type = "CHAR(1)", data = "lookup-tables/SIDE_OF_HWY.csv" }
 special_cond = { pk_type = "CHAR(1)", data = "lookup-tables/SPECIAL_COND.csv" }
 stwd_vehtype_at_fault = { pk_type = "CHAR(1)", data = "lookup-tables/STWD_VEHTYPE_AT_FAULT.csv" }
