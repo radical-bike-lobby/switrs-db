@@ -104,7 +104,7 @@ CREATE TABLE collisions (
     FOREIGN KEY(lighting) REFERENCES lighting(id)
     FOREIGN KEY(control_device) REFERENCES control_device(id)
     FOREIGN KEY(stwd_vehtype_at_fault) REFERENCES stwd_vehtype_at_fault(id)
-    FOREIGN KEY(chp_vehtype_at_fault) REFERENCES chp_vehtype_at_fault(id)
+    FOREIGN KEY(chp_vehtype_at_fault) REFERENCES chp_vehtype(id)
     FOREIGN KEY(primary_ramp) REFERENCES ramp(id)
     FOREIGN KEY(secondary_ramp) REFERENCES ramp(id)
 );
@@ -206,7 +206,7 @@ CREATE VIEW collisions_view (
     lighting.name,
     control_device.name,
     stwd_vehtype_at_fault.name,
-    chp_vehtype_at_fault.name,
+    chp_vehtype.name,
     primary_ramp.name,
     secondary_ramp.name
 FROM collisions AS c
@@ -238,7 +238,7 @@ LEFT JOIN road_cond AS road_cond_2 ON c.road_cond_2 = road_cond_2.id
 LEFT JOIN lighting ON c.lighting = lighting.id
 LEFT JOIN control_device ON c.control_device = control_device.id
 LEFT JOIN stwd_vehtype_at_fault ON c.stwd_vehtype_at_fault = stwd_vehtype_at_fault.id
-LEFT JOIN chp_vehtype_at_fault ON c.chp_vehtype_at_fault = chp_vehtype_at_fault.id
+LEFT JOIN chp_vehtype ON c.chp_vehtype_at_fault = chp_vehtype.id
 LEFT JOIN ramp primary_ramp ON c.primary_ramp = primary_ramp.id
 LEFT JOIN ramp secondary_ramp ON c.secondary_ramp = secondary_ramp.id
 WHERE 

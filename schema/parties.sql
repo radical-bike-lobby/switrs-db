@@ -51,8 +51,8 @@ CREATE TABLE parties (
     FOREIGN KEY(oaf_1) REFERENCES oaf(id)
     FOREIGN KEY(oaf_2) REFERENCES oaf(id)
     FOREIGN KEY(move_pre_acc) REFERENCES move_pre_acc(id)
-    FOREIGN KEY(chp_veh_type_towing) REFERENCES chp_veh_type_towing(id)
-    FOREIGN KEY(chp_veh_type_towed) REFERENCES chp_veh_type_towed(id)
+    FOREIGN KEY(chp_veh_type_towing) REFERENCES chp_vehtype(id)
+    FOREIGN KEY(chp_veh_type_towed) REFERENCES chp_vehtype(id)
     FOREIGN KEY(race) REFERENCES race(id)
 );
 CREATE INDEX idx_parties_case_id ON parties(case_id);
@@ -135,7 +135,7 @@ LEFT JOIN oaf_viol_cat ON p.oaf_viol_cat = oaf_viol_cat.id
 LEFT JOIN oaf oaf_1 ON p.oaf_1 = oaf_1.id
 LEFT JOIN oaf oaf_2 ON p.oaf_2 = oaf_2.id
 LEFT JOIN move_pre_acc ON p.move_pre_acc = move_pre_acc.id
-LEFT JOIN chp_veh_type_towing ON p.chp_veh_type_towing = chp_veh_type_towing.id
-LEFT JOIN chp_veh_type_towed ON p.chp_veh_type_towed = chp_veh_type_towed.id
+LEFT JOIN chp_vehtype chp_veh_type_towing ON p.chp_veh_type_towing = chp_veh_type_towing.id
+LEFT JOIN chp_vehtype chp_veh_type_towed ON p.chp_veh_type_towed = chp_veh_type_towed.id
 LEFT JOIN race ON p.race = race.id
 ;

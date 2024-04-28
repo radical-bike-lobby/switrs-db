@@ -20,8 +20,7 @@ beat_type = { pk_type = "CHAR(1)", data = "lookup-tables/BEAT_TYPE.csv" }
 chp_beat_class = { pk_type = "CHAR(1)", data = "lookup-tables/CHP_BEAT_CLASS.csv" }
 chp_beat_type = { pk_type = "CHAR(1)", data = "lookup-tables/CHP_BEAT_TYPE.csv" }
 chp_shift = { pk_type = "CHAR(1)", data = "lookup-tables/CHP_SHIFT.csv" }
-# TODO: chp_vehtype_at_fault is the same data as chp_veh_type_towed and chp_veh_type_towing, remove the other lookup tables
-chp_vehtype_at_fault = { pk_type = "CHAR(2)", data = "lookup-tables/party-tables/CHP_VEHICLE_TYPE_TOWED.csv" }
+chp_vehtype = { pk_type = "CHAR(2)", data = "lookup-tables/party-tables/CHP_VEHICLE_TYPE_TOWED.csv" }
 cnty_city_loc = { pk_type = "VARCHAR2(4)", data = "lookup-tables/CNTY_CITY_LOC.csv", schema = "schema/cnty_city_loc.sql" }
 collision_severity = { pk_type = "CHAR(1)", data = "lookup-tables/COLLISION_SEVERITY.csv" }
 control_device = { pk_type = "CHAR(1)", data = "lookup-tables/CONTROL_DEVICE.csv" }
@@ -47,8 +46,6 @@ type_of_collision = { pk_type = "CHAR(1)", data = "lookup-tables/TYPE_OF_COLLISI
 weather = { pk_type = "CHAR(1)", data = "lookup-tables/WEATHER_1.csv" }
 
 # for parties
-chp_veh_type_towed = { pk_type = "CHAR(2)", data = "lookup-tables/party-tables/CHP_VEHICLE_TYPE_TOWED.csv" }
-chp_veh_type_towing = { pk_type = "CHAR(2)", data = "lookup-tables/party-tables/CHP_VEHICLE_TYPE_TOWED.csv" }
 dir_of_travel = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/DIRECTION_OF_TRAVEL.csv" }
 finan_respons = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/FINANCIAL_RESPONSIBILITY.csv" }
 move_pre_acc = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/MOVEMENT_PRECEDING_COLLISION.csv" }
