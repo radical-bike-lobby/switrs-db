@@ -1,0 +1,51 @@
+id,name
+01,Under Influence in Public (647F)
+02,County Ordinance
+03,City Ordinance
+05,Business/Professions Code
+06,Felony Penal Code
+08,Controlled Substances (Felony Health and Safety)
+09,Health/Safety Code (Misdemeanor)
+10,Penal Code (Misdemeanor)
+11,Streets/Highways Code
+13,Welfare/Institutions Code
+15,Manslaughter
+16,Non-Vehicle Code Not Specified Above
+17,Fish & Game Code
+18,Agriculture Code
+19,Hit and Run
+20,Driving or Bicycling Under the Influence of Alcohol or Drug
+21,Improper Lane Change
+22,Impeding Traffic
+23,Failure to Heed Stop Signal
+24,Failure to Heed Stop Sign
+25,Unsafe Speed
+26,Reckless Driving
+27,Wrong Side of Road
+28,Unsafe Lane Change
+29,Improper Passing
+30,Following Too Closely
+31,Improper Turning
+33,Automobile Right-of-Way
+34,Pedestrian Right-of-Way
+35,Pedestrian Violation
+37,
+38,Hazardous Parking
+39,Lights
+40,Brakes
+43,Other Equipment
+44,Other Hazardous Movement
+46,Improper Registration
+47,Other Non-Moving Violation
+48,Excessive Smoke
+49,Excessive Noise
+50,Overweight
+51,Oversize
+52,Over Maximum Speed
+53,Unsafe Starting or Backing
+60,Off-Highway Vehicle Violation
+61,Child Restraint
+62,Seat Belt
+63,Seat Belt (Equipment)
+00,Not Stated
+-,Not Stated

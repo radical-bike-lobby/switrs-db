@@ -1,0 +1,73 @@
+# List of tables with full schema, in order of how they are loaded
+# these are initialized after lookup-tables to allow for foreign key creation
+
+# order in which to process the primary tables
+table-order = ["collisions", "parties", "victims"]
+
+# schema definition for the lookup tables, has parameters of {name} and {pk_type}
+lookup-schema = "schema/pk_table.sql"
+
+# the primary tables to load, should exist in the table-order array above
+[tables]
+collisions = { schema = "schema/collisions.sql", raw_data = "CollisionRecords.txt" }
+parties = { schema = "schema/parties.sql", raw_data = "PartyRecords.txt" }
+victims = { schema = "schema/victims.sql", raw_data = "VictimRecords.txt" }
+
+# list of tables with names/descriptions of all associated record data
+[lookup-tables]
+# for collisions (names match the fields in the collisions table and are used for their table names)
+beat_type = { pk_type = "CHAR(1)", data = "lookup-tables/BEAT_TYPE.csv" }
+chp_beat_class = { pk_type = "CHAR(1)", data = "lookup-tables/CHP_BEAT_CLASS.csv" }
+chp_beat_type = { pk_type = "CHAR(1)", data = "lookup-tables/CHP_BEAT_TYPE.csv" }
+chp_shift = { pk_type = "CHAR(1)", data = "lookup-tables/CHP_SHIFT.csv" }
+chp_vehtype = { pk_type = "CHAR(2)", data = "lookup-tables/party-tables/CHP_VEHICLE_TYPE_TOWED.csv" }
+cnty_city_loc = { pk_type = "VARCHAR2(4)", data = "lookup-tables/CNTY_CITY_LOC.csv", schema = "schema/cnty_city_loc.sql" }
+collision_severity = { pk_type = "CHAR(1)", data = "lookup-tables/COLLISION_SEVERITY.csv" }
+control_device = { pk_type = "CHAR(1)", data = "lookup-tables/CONTROL_DEVICE.csv" }
+day_of_week = { pk_type = "CHAR(1)", data = "lookup-tables/DAY_OF_WEEK.csv" }
+direction = { pk_type = "CHAR(1)", data = "lookup-tables/DIRECTION.csv" }
+hit_and_run = { pk_type = "CHAR(1)", data = "lookup-tables/HIT_AND_RUN.csv" }
+lighting = { pk_type = "CHAR(1)", data = "lookup-tables/LIGHTING.csv" }
+location_type = { pk_type = "CHAR(1)", data = "lookup-tables/LOCATION_TYPE.csv" }
+mviw = { pk_type = "CHAR(1)", data = "lookup-tables/MVIW.csv" }
+pcf_code_of_viol = { pk_type = "CHAR(1)", data = "lookup-tables/PCF_CODE_OF_VIOL.csv" }
+pcf_viol_category = { pk_type = "CHAR(2)", data = "lookup-tables/PCF_VIOL_CATEGORY.csv" }
+ped_action = { pk_type = "CHAR(1)", data = "lookup-tables/PED_ACTION.csv" }
+population = { pk_type = "CHAR(1)", data = "lookup-tables/POPULATION.csv" }
+primary_coll_factor = { pk_type = "CHAR(1)", data = "lookup-tables/PRIMARY_COLL_FACTOR.csv" }
+ramp = { pk_type = "VARCHAR2(2)", data = "lookup-tables/PRIMARY_RAMP.csv" }
+ramp_intersection = { pk_type = "CHAR(1)", data = "lookup-tables/RAMP_INTERSECTION.csv" }
+road_cond = { pk_type = "CHAR(1)", data = "lookup-tables/ROAD_COND_1.csv" }
+road_surface = { pk_type = "CHAR(1)", data = "lookup-tables/ROAD_SURFACE.csv" }
+side_of_hwy = { pk_type = "CHAR(1)", data = "lookup-tables/SIDE_OF_HWY.csv" }
+special_cond = { pk_type = "CHAR(1)", data = "lookup-tables/SPECIAL_COND.csv" }
+stwd_vehtype_at_fault = { pk_type = "CHAR(1)", data = "lookup-tables/STWD_VEHTYPE_AT_FAULT.csv" }
+type_of_collision = { pk_type = "CHAR(1)", data = "lookup-tables/TYPE_OF_COLLISION.csv" }
+weather = { pk_type = "CHAR(1)", data = "lookup-tables/WEATHER_1.csv" }
+
+# for parties
+dir_of_travel = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/DIRECTION_OF_TRAVEL.csv" }
+finan_respons = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/FINANCIAL_RESPONSIBILITY.csv" }
+move_pre_acc = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/MOVEMENT_PRECEDING_COLLISION.csv" }
+oaf = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/OTHER_ASSOCIATED_FACTOR.csv" }
+oaf_viol_cat = { pk_type = "CHAR(2)", data = "lookup-tables/party-tables/OAF_VIOLATION_CATEGORY.csv" }
+oaf_violation_code = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/OAF_VIOLATION_CODE.csv" }
+party_drug_physical = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/PARTY_DRUG_PHYSICAL.csv" }
+party_safety_equip = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/PARTY_SAFETY_EQUIPMENT.csv" }
+party_sex = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/PARTY_SEX.csv" }
+party_sobriety = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/PARTY_SOBRIETY.csv" }
+party_type = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/PARTY_TYPE.csv" }
+race = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/PARTY_RACE.csv" }
+sp_info_1 = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/SPECIAL_INFORMATION_1.csv" }
+sp_info_2 = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/SPECIAL_INFORMATION_2.csv" }
+sp_info_3 = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/SPECIAL_INFORMATION_3.csv" }
+statewide_vehicle_type = { pk_type = "CHAR(1)", data = "lookup-tables/party-tables/STATEWIDE_VEHICLE_TYPE.csv" }
+
+# for victims
+victim_age = { pk_type = "INTEGER", data = "lookup-tables/victim-tables/VICTIM_AGE.csv" }
+victim_degree_of_injury = { pk_type = "CHAR(1)", data = "lookup-tables/victim-tables/VICTIM_DEGREE_OF_INJURY.csv" }
+victim_ejected = { pk_type = "CHAR(1)", data = "lookup-tables/victim-tables/VICTIM_EJECTED.csv" }
+victim_role = { pk_type = "CHAR(1)", data = "lookup-tables/victim-tables/VICTIM_ROLE.csv" }
+victim_safety_equip = { pk_type = "CHAR(1)", data = "lookup-tables/victim-tables/VICTIM_SAFETY_EQUIPMENT.csv" }
+victim_seating_position = { pk_type = "CHAR(1)", data = "lookup-tables/victim-tables/VICTIM_SEATING_POSITION.csv" }
+victim_sex = { pk_type = "CHAR(1)", data = "lookup-tables/victim-tables/VICTIM_SEX.csv" }

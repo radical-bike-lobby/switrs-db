@@ -1,0 +1,8 @@
+id,name
+1,Driver (including Hit and Run)
+2,Pedestrian
+3,Parked Vehicle
+4,Bicyclist
+5,Other
+6,Undefined in RawData_template
+-,Not Stated

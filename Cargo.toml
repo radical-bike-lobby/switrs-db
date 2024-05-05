@@ -1,0 +1,42 @@
+[package]
+name = "switrs-db"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.80"
+basic-toml = "0.1"
+clap = { version = "4.4.11", features = ["cargo", "derive", "env"] }
+csv = "1.3.0"
+humantime = "2.1.0"
+humantime-serde = "1.1.1"
+new_string_template = "1.5.1"
+rusqlite = { version = "0.31.0", features = [
+    "backup",
+    "bundled",
+    "hooks",
+    "functions",
+    "time",
+] }
+rusqlite_migration = { version = "1.2.0", features = ["from-directory"] }
+serde = { version = "1.0", features = ["derive"] }
+time = "0.3"
+thiserror = "1.0.50"
+
+[lints.rust]
+unsafe_code = "forbid"
+missing_docs = "warn"
+non_snake_case = "warn"
+non_upper_case_globals = "warn"
+rust_2018_idioms = "warn"
+rust_2021_compatibility = "warn"
+unreachable_pub = "warn"
+
+[lints.clippy]
+default_trait_access = "warn"
+dbg_macro = "warn"
+#print_stdout = "warn"
+unimplemented = "warn"
+use_self = "warn"
