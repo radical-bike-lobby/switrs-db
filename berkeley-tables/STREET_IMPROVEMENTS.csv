@@ -4,3 +4,4 @@ id,street,start_intersection,end_intersection,date_completed,improvement_type,ca
 3,Fulton,Bancroft,Channing,2016-01-01,8,4
 4,Hearst,Le Conte Ave,Oxford,2017-01-01,3,2
 5,Hearst,Oxford,Milvia,2017-01-01,8,4
+6,Milvia,Hearst,Blake,2022-01-01,8,4
