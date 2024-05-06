@@ -21,6 +21,8 @@ id,primary_street,secondary_street,date_completed,improvement_type
 20,MLK Jr Way,Oregon Street,2024-01-01,2
 21,MLK Jr Way,Oregon Street,2024-01-01,5
 22,MLK Jr Way,Russel,2024-01-01,9
-23,Sacramento,Virginia,2022-01-01,2
+23,Sacramento Street,Virginia,2022-01-01,2
 24,San Pablo Ave,Virginia,2023-04-20,6
 25,San Pablo Ave,Hearst Street,2023-04-20,6
+26,Sacramento Street,Oregon Street,2019-01-01,5
+27,Santa Fe Ave,Ohlone Greenway,2021-06-01,7
