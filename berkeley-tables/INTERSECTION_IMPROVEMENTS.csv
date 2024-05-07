@@ -26,3 +26,12 @@ id,primary_street,secondary_street,date_completed,improvement_type
 25,San Pablo Ave,Hearst Street,2023-04-20,6
 26,Sacramento Street,Oregon Street,2019-01-01,5
 27,Santa Fe Ave,Ohlone Greenway,2021-06-01,7
+28,Shattuck,Virginia,2012-01-01,7
+29,Shattuck,Virginia,2012-01-01,5
+30,Shattuck,Ward,2016-01-01,7
+31,Shattuck,Stuart,2016-01-01,7
+32,Shattuck,Russell,2016-01-01,7
+33,Shattuck,Oregon,2016-01-01,5
+34,Shattuck,Center,2020-01-01,10
+35,Shattuck,Russell,2023-06-01,5
+36,Shattuck,Woolsey,2023-06-01,5
