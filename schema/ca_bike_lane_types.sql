@@ -1,0 +1,1 @@
+CREATE TABLE ca_bike_lane_types (id VARCHAR(4) PRIMARY KEY, name VARCHAR(256), description VARCHAR(256));

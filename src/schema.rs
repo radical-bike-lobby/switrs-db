@@ -18,13 +18,25 @@ pub struct LookupTable {
     schema: Option<PathBuf>,
 }
 
+/// Path to the data to load into the table
+#[derive(Debug, Deserialize)]
+#[serde(tag = "type", content = "path", rename_all = "snake_case")]
+pub enum DataPath {
+    /// The file name (relative to where the raw data was extracted) of the csv data
+    RawData(PathBuf),
+    /// Path relative to the application
+    Path(PathBuf),
+}
+
 /// Primary Table definition as defined in the Toml
 #[derive(Debug, Deserialize)]
 pub struct PrimaryTable {
     /// Path to the schema file for the table, like collisions.sql
     schema: PathBuf,
-    /// The file name (relative to where the raw data was extracted) of the csv data
-    raw_data: PathBuf,
+
+    /// Path to the data to load into the table
+    #[serde(flatten)]
+    data: DataPath,
 }
 
 /// Schema defenition as loaded from the Toml
@@ -186,7 +198,10 @@ pub trait NewDB {
                 .get(table_name)
                 .ok_or_else(|| format!("table missing from [tables]: {table_name}"))?;
 
-            let data = data.join(&table.raw_data);
+            let data = match &table.data {
+                DataPath::RawData(path) => data.join(path),
+                DataPath::Path(path) => path.clone(),
+            };
 
             println!("LOADING {table_name}");
             self.connection()

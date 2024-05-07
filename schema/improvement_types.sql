@@ -1,0 +1,1 @@
+CREATE TABLE improvement_types (id VARCHAR(4) PRIMARY KEY, name VARCHAR(256), link VARCHAR(2048));

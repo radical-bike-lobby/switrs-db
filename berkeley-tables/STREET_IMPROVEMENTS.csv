@@ -1,4 +1,4 @@
-id,street,start_intersection,end_intersection,date_completed,improvement_type,ca_bike_lane_type
+id,primary_rd,start_intersection,end_intersection,date_completed,improvement_type,ca_bike_lane_type
 1,Monterey,Hopkins,Colusa,2019-09-01,3,1
 2,Bancroft Way,Dana,Fulton,2017-01-01,4,4
 3,Fulton,Bancroft,Channing,2016-01-01,8,4

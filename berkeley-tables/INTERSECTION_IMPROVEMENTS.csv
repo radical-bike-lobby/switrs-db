@@ -1,4 +1,4 @@
-id,primary_street,secondary_street,date_completed,improvement_type
+id,primary_rd,secondary_rd,date_completed,improvement_type
 1,Hopkins,The Alameda,2016-12-20,1
 2,Cedar,Ninth,2020-01-01,2
 3,Ashby,Ellis,2012-01-01,5
