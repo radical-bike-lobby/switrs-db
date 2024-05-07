@@ -14,16 +14,10 @@ or just run this command
 > curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-- Install the CLI
+- Run the CLI from Cargo (simplest method), run from the project root directory, everything after the `--` are options to the command
 
 ```shell
-> cargo install --path .
-```
-
-- Once installed, run the CLI, best to do from inside the directory.
-
-```shell
-> switrs-db --help                                                                                ✔  7s  21:30:46 
+> cargo run -r -- --help
 Usage: switrs-db [OPTIONS] -d <DATA_PATH> -f <SQLITE_FILE>
 
 Options:
@@ -48,7 +42,7 @@ Extract the raw data, for example a directory similar to this `~/Downloads/48518
 Run the CLI, this will put the DB into `target/switrs.sqlite`
 
 ```shell
-> switrs-db  -d target/4481761401380215189 -f target/switrs.sqlite
+> cargo run -r -- -d target/4481761401380215189 -f target/switrs.sqlite
 Loading data from target/4481761401380215189 and writing to target/switrs.sqlite
 LOADING ...
 LOADING collisions
@@ -58,6 +52,20 @@ Successfully imported data, writing DB to target/switrs.sqlite
 ```
 
 Now the sqlite tools or other programs can be used with the DB.
+
+```shell
+> sqlite3 target/switrs.sqlite
+SQLite version 3.43.2 2023-10-10 13:08:14
+Enter ".help" for usage hints.
+sqlite> SELECT * FROM collisions_view WHERE primary_rd LIKE "%Hopkins%" AND bicycle_accident == 'Y';
+6141237|HOPKINS ST and PERALTA AV Berkeley, CA|2014-03-07|2013-06-18T17:04|HOPKINS ST|PERALTA AV|||Y|0|0|1|0|0|0|1|||Tuesday|Not CHP|Incorporated (100000 - 250000)|Berkeley|Not Above|Not CHP|Not CHP|East|Clear|Not Stated||||Injury (Complaint of Pain)|(Vehicle) Code Violation|Not Stated|Improper Turning|Not Hit and Run|Overturned|Bicycle|No Pedestrian Involved|Dry|No Unusual Condition|Not Stated|Daylight|None|Bicycle|Bicycle|Not Stated|Not Stated
+7181630|HOPKINS ST and PERALTA AV Berkeley, CA|2016-02-18|2015-12-01T08:20|HOPKINS ST|PERALTA AV|||Y|0|1|0|0|0|0|1|||Tuesday|Not CHP|Incorporated (100000 - 250000)|Berkeley|Not Above|Not CHP|Not CHP|West|Clear|Not Stated||||Injury (Other Visible)|(Vehicle) Code Violation|Not Stated|Unsafe Speed|Not Hit and Run|Hit Object|Fixed Object|No Pedestrian Involved|Dry|No Unusual Condition|Not Stated|Daylight|None|Bicycle|Bicycle|Not Stated|Not Stated
+8050043|HOPKINS ST and CARLOTTA AV Berkeley, CA|2016-06-10|2016-04-30T12:30|HOPKINS ST|CARLOTTA AV|||Y|1|0|0|0|0|0|1|||Saturday|Not CHP|Incorporated (100000 - 250000)|Berkeley|Not Above|Not CHP|Not CHP|East|Clear|Not Stated||||Injury (Severe)|(Vehicle) Code Violation|Not Stated|Improper Turning|Not Hit and Run|Rear End|Bicycle|No Pedestrian Involved|Dry|No Unusual Condition|Not Stated|Daylight|None|Bicycle|Bicycle|Not Stated|Not Stated
+8091540|HOPKINS ST and CEDAR ST Berkeley, CA|2016-07-29|2016-06-01T16:59|HOPKINS ST|CEDAR ST|||Y|0|0|1|0|0|0|1|||Wednesday|Not CHP|Incorporated (100000 - 250000)|Berkeley|Not Above|Not CHP|Not CHP||Clear|Not Stated||||Injury (Complaint of Pain)|Not Stated|Not Stated|Not Stated|Not Hit and Run|Sideswipe|Bicycle|No Pedestrian Involved|Dry|No Unusual Condition|Not Stated|Daylight|None|Not Stated|Not Stated or Unknown (Hit and Run)|Not Stated|Not Stated
+8375570|HOPKINS and BEVERLY PL Berkeley, CA|2017-06-09|2017-04-02T09:28|HOPKINS|BEVERLY PL|||Y|0|0|1|0|0|0|1|37.88425|-122.27676|Sunday|Not CHP|Incorporated (100000 - 250000)|Berkeley|Not Above|Not CHP|Not CHP|West|Clear|Not Stated||||Injury (Complaint of Pain)|(Vehicle) Code Violation|Not Stated|Other Hazardous Violation|Not Hit and Run|Vehicle/Pedestrian|Bicycle|No Pedestrian Involved|Dry|No Unusual Condition|Not Stated|Daylight|None|Passenger Car/Station Wagon|Passenger Car, Station Wagon, or Jeep|Not Stated|Not Stated
+8446899|HOPKINS ST and MONTEREY AV Berkeley, CA|2017-09-14|2017-06-11T15:07|HOPKINS ST|MONTEREY AV|||Y|1|0|0|0|0|0|1|37.88168|-122.28193|Sunday|Not CHP|Incorporated (100000 - 250000)|Berkeley|Not Above|Not CHP|Not CHP|West|Clear|Not Stated||||Injury (Severe)|(Vehicle) Code Violation|Not Stated|Unsafe Speed|Not Hit and Run|Rear End|Bicycle|No Pedestrian Involved|Dry|No Unusual Condition|Not Stated|Daylight|None|Bicycle|Bicycle|Not Stated|Not Stated
+8595513|HOPKINS ST and CURTIS ST Berkeley, CA|2018-05-01|2018-02-05T12:21|HOPKINS ST|CURTIS ST|||Y|0|1|0|0|0|0|1|||Monday|Not CHP|Incorporated (100000 - 250000)|Berkeley|Not Above|Not CHP|Not CHP|West|Clear|Not Stated||||Injury (Other Visible)|(Vehicle) Code Violation|Not Stated|Improper Turning|Not Hit and Run|Broadside|Bicycle|No Pedestrian Involved|Dry|No Unusual Condition|Not Stated|Daylight|None|Bicycle|Bicycle|Not Stated|Not Stated
+```
 
 ## import-bicycl-crashes.sh
 
