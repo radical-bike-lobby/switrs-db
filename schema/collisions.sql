@@ -161,9 +161,9 @@ CREATE VIEW collisions_view (
     secondary_ramp_name
 ) AS SELECT 
     c.case_id,
-    format("%s %s%s, CA", c.primary_rd, iif(c.secondary_rd IS NOT NULL, format("and %s ", c.secondary_rd), ""), cnty_city_loc.city),
-    format("%s-%s-%s", substr(proc_date,1,4), substr(proc_date,5,2), substr(proc_date,7,2)),
-    format("%s-%s-%sT%s:%s", substr(collision_date,1,4), substr(collision_date,5,2), substr(collision_date,7,2), substr(collision_time,1,2), substr(collision_time,3,2)),
+    printf("%s %s%s, CA", c.primary_rd, iif(c.secondary_rd IS NOT NULL, printf("and %s ", c.secondary_rd), ""), cnty_city_loc.city),
+    printf("%s-%s-%s", substr(proc_date,1,4), substr(proc_date,5,2), substr(proc_date,7,2)),
+    printf("%s-%s-%sT%s:%s", substr(collision_date,1,4), substr(collision_date,5,2), substr(collision_date,7,2), substr(collision_time,1,2), substr(collision_time,3,2)),
     c.primary_rd,
     c.secondary_rd,
     c.state_route,
