@@ -244,3 +244,16 @@ LEFT JOIN ramp secondary_ramp ON c.secondary_ramp = secondary_ramp.id
 WHERE 
 c.cnty_city_loc IN ("0102", "0103") -- see lookup-tables/CNTY_CITY_LOC.csv
 ;
+
+-- view of the data included in this DB
+CREATE VIEW version_view (
+    first_proc_date,
+    last_proc_date,
+    first_collision_datetime,
+    last_collision_datetime
+) AS SELECT
+    (SELECT c.proc_date FROM collisions_view c ORDER BY c.proc_date LIMIT 1),
+    (SELECT c.proc_date FROM collisions_view c ORDER BY c.proc_date DESC LIMIT 1),
+    (SELECT c.collision_datetime FROM collisions_view c ORDER BY c.collision_datetime LIMIT 1),
+    (SELECT c.collision_datetime FROM collisions_view c ORDER BY c.collision_datetime DESC LIMIT 1)
+;
