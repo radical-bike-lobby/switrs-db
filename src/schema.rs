@@ -1,12 +1,15 @@
 //! Schema operations for the SWITRS sqlite DB creation
 
 use std::{
+    cell::OnceCell,
     collections::HashMap,
     fs,
     path::{Path, PathBuf},
+    sync::OnceLock,
 };
 
 use new_string_template::template::Template;
+use regex::Regex;
 use rusqlite::{params_from_iter, Connection};
 use serde::Deserialize;
 
@@ -98,6 +101,8 @@ pub trait NewDB {
         name: &str,
         table_data: &Path,
     ) -> Result<usize, Box<dyn std::error::Error>> {
+        let fixup_roads = name == "collisions";
+
         // open the csv file
         let mut csv = csv::ReaderBuilder::new()
             .quoting(true)
@@ -114,13 +119,17 @@ pub trait NewDB {
         // build up the insert statement
         let mut field_count = 0;
         let headers_record;
+        let mut case_id_idx = 0usize;
+        let mut primary_rd_idx = 0usize;
+        let mut secondary_rd_idx = 0usize;
+
         let (fields, values) = {
             // construct "field = "
             headers_record = csv.headers()?.clone();
             let mut fields = String::new();
             let mut values = String::new();
             let mut first = true;
-            for f in &headers_record {
+            for (idx, f) in headers_record.into_iter().enumerate() {
                 if !first {
                     fields.push_str(", ");
                     values.push_str(", ");
@@ -128,7 +137,16 @@ pub trait NewDB {
                     first = false;
                 }
 
-                fields.push_str(f);
+                let f = f.to_lowercase();
+                if f.to_lowercase() == "case_id" {
+                    case_id_idx = idx;
+                } else if f == "primary_rd" {
+                    primary_rd_idx = idx;
+                } else if f == "secondary_rd" {
+                    secondary_rd_idx = idx;
+                }
+
+                fields.push_str(&f);
                 values.push('?');
                 field_count += 1;
             }
@@ -151,8 +169,9 @@ pub trait NewDB {
 
             // convert empty strings to NULL, should we change '-' to NULL as well?
             let record_iter = record
-                .into_iter()
+                .iter()
                 .map(|s| if s.is_empty() { None } else { Some(s) });
+
             stmt.insert(params_from_iter(record_iter))
                 .inspect_err(|e| {
                     print!("error on insert into {name}: {e}, row {count}:");
@@ -161,6 +180,30 @@ pub trait NewDB {
                     }
                     println!();
                 })?;
+
+            // add normalized roads from the collisions table
+            if fixup_roads {
+                let fixed_roads = record
+                    .iter()
+                    .map(|s| s.to_string().to_ascii_uppercase())
+                    .enumerate()
+                    .map(|(idx, s)| {
+                        if idx == primary_rd_idx || idx == secondary_rd_idx {
+                            let normalized = normalize_road(&s);
+                            println!("ROAD {idx}: {s}: {normalized:?}");
+                        }
+                        (idx, s)
+                    })
+                    .filter_map(|(idx, s)| {
+                        if idx == case_id_idx || idx == primary_rd_idx || idx == secondary_rd_idx {
+                            Some(s)
+                        } else {
+                            None
+                        }
+                    })
+                    .collect::<Vec<String>>();
+            }
+
             count += 1;
         }
 
@@ -439,4 +482,148 @@ mod tests {
 
         assert_eq!(39, count);
     }
+}
+
+#[derive(Debug, Eq, PartialEq)]
+struct NormalizedRoad<'a> {
+    road: &'a str,
+    address: Option<&'a str>,
+    block: Option<&'a str>,
+    direction: Option<&'a str>,
+}
+
+/// Takes Road names and removes address information, or block information
+fn normalize_road(road: &str) -> NormalizedRoad<'_> {
+    static ADDRESS_MATCHER: OnceLock<Regex> = OnceLock::new();
+
+    let address_matcher: &Regex = ADDRESS_MATCHER.get_or_init(|| {
+        Regex::new(
+            r"(^(?<address_pre>\d+) +)?(?<street>(I-\d+)|(RT +\d+)|(\w+[ \w]+[[:alpha:]]+))([\.,])*(/B)?( +(?<direction>WESTBOUND|E/B|E|W/B|WB)[\.,/]*)?( +((?<address_post>\d+)|(\(?(?<block>\d+) BLOCK\)?))$)?",
+        )
+        .expect("bad regular expression")
+
+        // Regex::new(r"(?<street>(\w+[ \w]+[[:alpha:]]+))( +((?<address_post>\d+)))?")
+        //     .expect("bad regular expression")
+    });
+
+    let caps = address_matcher.captures(road);
+
+    if let Some(caps) = caps {
+        NormalizedRoad {
+            road: caps.name("street").map(|m| m.as_str()).unwrap_or(road),
+            address: caps
+                .name("address_pre")
+                .or_else(|| caps.name("address_post"))
+                .map(|s| s.as_str()),
+            block: caps.name("block").map(|m| m.as_str()),
+            direction: caps.name("direction").map(|m| m.as_str()),
+        }
+    } else {
+        NormalizedRoad {
+            road,
+            address: None,
+            block: None,
+            direction: None,
+        }
+    }
+}
+
+#[test]
+fn test_normalize_road() {
+    let test = |raw, road, address, block, direction| {
+        assert_eq!(
+            NormalizedRoad {
+                road,
+                address,
+                block,
+                direction,
+            },
+            normalize_road(raw)
+        )
+    };
+
+    test("GRANT", "GRANT", None, None, None);
+    test("1201 2ND ST", "2ND ST", Some("1201"), None, None);
+    test("WARD 1403", "WARD", Some("1403"), None, None);
+    test("RT 123", "RT 123", None, None, None);
+    test("RT 13", "RT 13", None, None, None);
+    test("RT 80 E", "RT 80", None, None, Some("E"));
+    test("RT1805", "RT1805", None, None, None);
+    test("SAN PABLO 1229", "SAN PABLO", Some("1229"), None, None);
+    test("6TH  ST", "6TH  ST", None, None, None);
+    test("7 GAUSS WAY", "GAUSS WAY", Some("7"), None, None);
+    test("ASHBY AVE.", "ASHBY AVE", None, None, None);
+    test(
+        "EUCLID AVE (600 BLOCK)",
+        "EUCLID AVE",
+        None,
+        Some("600"),
+        None,
+    );
+    test("RT 80 E/B", "RT 80", None, None, Some("E/B"));
+    test("I-80 WB TO UNIVERSITY AVE", "I-80", None, None, Some("WB"));
+    test("I-80 E/B TO I-580 W/B", "I-80", None, None, Some("E/B"));
+    test(
+        "1313 NINTH STREET (PARKING LOT)",
+        "NINTH STREET",
+        Some("1313"),
+        None,
+        None,
+    );
+    test(
+        "85 EL CAMINO REAL RD",
+        "EL CAMINO REAL RD",
+        Some("85"),
+        None,
+        None,
+    );
+    test(
+        "8TH STREET, 1400 BLOCK",
+        "8TH STREET",
+        None,
+        Some("1400"),
+        None,
+    );
+    test(
+        "ADDISON ST. WESTBOUND, 1500 BLOCK",
+        "ADDISON ST",
+        None,
+        Some("1500"),
+        Some("WESTBOUND"),
+    );
+    test(
+        "CEDAR ST. (2200 BLOCK)",
+        "CEDAR ST",
+        None,
+        Some("2200"),
+        None,
+    );
+    test(
+        "CEDAR STREET, 1800 BLOCK",
+        "CEDAR STREET",
+        None,
+        Some("1800"),
+        None,
+    );
+    test(
+        "CHANNING WAY E/B  800 BLOCK",
+        "CHANNING WAY E",
+        None,
+        Some("800"),
+        None,
+    );
+    test(
+        "CAMPUS DR, 1400 BLOCK",
+        "CAMPUS DR",
+        None,
+        Some("1400"),
+        None,
+    );
+    test(
+        "CAMPUS DR., 1400 BLOCK",
+        "CAMPUS DR",
+        None,
+        Some("1400"),
+        None,
+    );
 }

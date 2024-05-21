@@ -449,6 +449,7 @@ dependencies = [
  "humantime",
  "humantime-serde",
  "new_string_template",
+ "regex",
  "rusqlite",
  "rusqlite_migration",
  "serde",
