@@ -1,9 +1,10 @@
 //! Schema operations for the SWITRS sqlite DB creation
 
 use std::{
-    cell::OnceCell,
+    borrow::Cow,
     collections::HashMap,
     fs,
+    ops::Deref,
     path::{Path, PathBuf},
     sync::OnceLock,
 };
@@ -29,6 +30,8 @@ pub enum DataPath {
     RawData(PathBuf),
     /// Path relative to the application
     Path(PathBuf),
+    /// Create the table as empty
+    Empty,
 }
 
 /// Primary Table definition as defined in the Toml
@@ -158,9 +161,39 @@ pub trait NewDB {
             return Ok(0);
         }
 
-        let insert_stmt = format!("INSERT INTO {name} ({fields}) VALUES({values})");
+        let mut insert_stmt = self
+            .connection()
+            .prepare(&format!("INSERT INTO {name} ({fields}) VALUES({values})"))?;
 
-        let mut stmt = self.connection().prepare(&insert_stmt)?;
+        // when processing collision data, we will cleanup some data,
+        //   for that we have some custom insert and one off tables
+        let mut insert_road_stmt = if fixup_roads {
+            Some(self.connection().prepare(
+                "INSERT INTO normalized_roads (
+                case_id,
+                primary_rd,
+                primary_rd_address,
+                primary_rd_block,
+                primary_rd_direction,
+                secondary_rd,
+                secondary_rd_address,
+                secondary_rd_block,
+                seconardy_rd_direction
+            ) VALUES(
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?
+            )",
+            )?)
+        } else {
+            None
+        };
 
         // collect all the data
         let mut count = 0;
@@ -172,7 +205,8 @@ pub trait NewDB {
                 .iter()
                 .map(|s| if s.is_empty() { None } else { Some(s) });
 
-            stmt.insert(params_from_iter(record_iter))
+            insert_stmt
+                .insert(params_from_iter(record_iter))
                 .inspect_err(|e| {
                     print!("error on insert into {name}: {e}, row {count}:");
                     for (field, value) in headers_record.iter().zip(record.iter()) {
@@ -183,25 +217,29 @@ pub trait NewDB {
 
             // add normalized roads from the collisions table
             if fixup_roads {
-                let fixed_roads = record
-                    .iter()
-                    .map(|s| s.to_string().to_ascii_uppercase())
-                    .enumerate()
-                    .map(|(idx, s)| {
-                        if idx == primary_rd_idx || idx == secondary_rd_idx {
-                            let normalized = normalize_road(&s);
-                            println!("ROAD {idx}: {s}: {normalized:?}");
-                        }
-                        (idx, s)
-                    })
-                    .filter_map(|(idx, s)| {
-                        if idx == case_id_idx || idx == primary_rd_idx || idx == secondary_rd_idx {
-                            Some(s)
-                        } else {
-                            None
-                        }
-                    })
-                    .collect::<Vec<String>>();
+                let case_id = record.get(case_id_idx);
+                let primary_rd = record.get(primary_rd_idx);
+                let secondary_rd = record.get(secondary_rd_idx);
+
+                let primary_rd = primary_rd.map(normalize_road);
+                let secondary_rd = secondary_rd.map(normalize_road);
+
+                if let Some(case_id) = case_id {
+                    insert_road_stmt.as_mut().unwrap().insert([
+                        Some(case_id), 
+                        primary_rd.as_ref().map(|r| r.road.deref()),
+                        primary_rd.as_ref().and_then(|r| r.address),
+                        primary_rd.as_ref().and_then(|r| r.block),
+                        primary_rd.as_ref().and_then(|r| r.direction),
+                        secondary_rd.as_ref().map(|r| r.road.deref()),
+                        secondary_rd.as_ref().and_then(|r| r.address),
+                        secondary_rd.as_ref().and_then(|r| r.block),
+                        secondary_rd.as_ref().and_then(|r| r.direction),
+                    ])
+                    .inspect_err(|e| {
+                        println!("error on insert into normalized_road: {e}, row {count}: case_id={case_id},primary={primary_rd:?},secondary={secondary_rd:?}");
+                    })?;
+                }
             }
 
             count += 1;
@@ -242,14 +280,18 @@ pub trait NewDB {
                 .ok_or_else(|| format!("table missing from [tables]: {table_name}"))?;
 
             let data = match &table.data {
-                DataPath::RawData(path) => data.join(path),
-                DataPath::Path(path) => path.clone(),
+                DataPath::RawData(path) => Some(data.join(path)),
+                DataPath::Path(path) => Some(path.clone()),
+                DataPath::Empty => None,
             };
 
             println!("LOADING {table_name}");
             self.connection()
                 .create_table(table_name, "", &table.schema)?;
-            self.connection().load_data(table_name, &data)?;
+
+            if let Some(data) = data {
+                self.connection().load_data(table_name, &data)?;
+            }
         }
 
         Ok(())
@@ -262,6 +304,56 @@ impl NewDB for Connection {
     }
 }
 
+#[derive(Debug, Eq, PartialEq)]
+struct NormalizedRoad<'a> {
+    road: Cow<'a, str>,
+    address: Option<&'a str>,
+    block: Option<&'a str>,
+    direction: Option<&'a str>,
+}
+
+/// Takes Road names and removes address information, or block information
+fn normalize_road(road: &str) -> NormalizedRoad<'_> {
+    static ADDRESS_MATCHER: OnceLock<Regex> = OnceLock::new();
+    static REPLACE_SPACES: OnceLock<Regex> = OnceLock::new();
+
+    let address_matcher: &Regex = ADDRESS_MATCHER.get_or_init(|| {
+        Regex::new(
+            r"(^(?<address_pre>\d+) +)?(?<street>(I-\d+)|(RT +\d+)|(\w+[ \w]+[[:alpha:]]+))([\.,])*(/B)?( +(?<direction>NORTHBOUND|EASTBOUND|WESTBOUND|SOUTHBOUND|N/B|E/B|W/B|S/B|NB|EB|WB|SB|N|E|W|S)[\.,/]*)?( +((?<address_post>\d+)|(\(?(?<block>\d+) BLOCK\)?))$)?",
+        )
+        .expect("bad regular expression")
+    });
+
+    let replace_spaces: &Regex =
+        REPLACE_SPACES.get_or_init(|| Regex::new(r"( +)").expect("bad regular expression"));
+
+    let caps = address_matcher.captures(road);
+
+    if let Some(caps) = caps {
+        let road = caps.name("street").map(|m| m.as_str()).unwrap_or(road);
+        let road = replace_spaces.replace_all(road, " ");
+
+        NormalizedRoad {
+            road,
+            address: caps
+                .name("address_pre")
+                .or_else(|| caps.name("address_post"))
+                .map(|s| s.as_str()),
+            block: caps.name("block").map(|m| m.as_str()),
+            direction: caps.name("direction").map(|m| m.as_str()),
+        }
+    } else {
+        let road = replace_spaces.replace_all(road, " ");
+
+        NormalizedRoad {
+            road,
+            address: None,
+            block: None,
+            direction: None,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -270,7 +362,7 @@ mod tests {
     fn test_toml() {
         let schemas = Schema::from_toml_file(Path::new("Schemas.toml")).expect("toml is bad");
 
-        assert_eq!(schemas.table_order[0], "collisions");
+        assert_eq!(schemas.table_order[1], "collisions");
         assert_eq!(
             schemas.tables["collisions"].schema,
             Path::new("schema/collisions.sql")
@@ -378,6 +470,16 @@ mod tests {
             .init_lookup_tables(&schemas.lookup_tables, &schemas.lookup_schema)
             .expect("failed to init lookup tables");
 
+        // create the normalized_roads schema
+        connection
+            .connection()
+            .create_table(
+                "normalized_roads",
+                "",
+                Path::new("schema/normalized_roads.sql"),
+            )
+            .expect("failed to create table");
+
         connection
             .connection()
             .create_table("collisions", "", Path::new("schema/collisions.sql"))
@@ -405,6 +507,16 @@ mod tests {
             .connection()
             .init_lookup_tables(&schemas.lookup_tables, &schemas.lookup_schema)
             .expect("failed to init lookup tables");
+
+        // create the normalized_roads schema
+        connection
+            .connection()
+            .create_table(
+                "normalized_roads",
+                "",
+                Path::new("schema/normalized_roads.sql"),
+            )
+            .expect("failed to create table");
 
         // load test data into the collisions table
         connection
@@ -445,6 +557,16 @@ mod tests {
             .init_lookup_tables(&schemas.lookup_tables, &schemas.lookup_schema)
             .expect("failed to init lookup tables");
 
+        // create the normalized_roads schema
+        connection
+            .connection()
+            .create_table(
+                "normalized_roads",
+                "",
+                Path::new("schema/normalized_roads.sql"),
+            )
+            .expect("failed to create table");
+
         // load test data into the collisions table
         connection
             .connection()
@@ -482,148 +604,104 @@ mod tests {
 
         assert_eq!(39, count);
     }
-}
 
-#[derive(Debug, Eq, PartialEq)]
-struct NormalizedRoad<'a> {
-    road: &'a str,
-    address: Option<&'a str>,
-    block: Option<&'a str>,
-    direction: Option<&'a str>,
-}
+    #[test]
+    fn test_normalize_road() {
+        let test = |raw, road, address, block, direction| {
+            assert_eq!(
+                NormalizedRoad {
+                    road: Cow::Borrowed(road),
+                    address,
+                    block,
+                    direction,
+                },
+                normalize_road(raw)
+            )
+        };
 
-/// Takes Road names and removes address information, or block information
-fn normalize_road(road: &str) -> NormalizedRoad<'_> {
-    static ADDRESS_MATCHER: OnceLock<Regex> = OnceLock::new();
-
-    let address_matcher: &Regex = ADDRESS_MATCHER.get_or_init(|| {
-        Regex::new(
-            r"(^(?<address_pre>\d+) +)?(?<street>(I-\d+)|(RT +\d+)|(\w+[ \w]+[[:alpha:]]+))([\.,])*(/B)?( +(?<direction>WESTBOUND|E/B|E|W/B|WB)[\.,/]*)?( +((?<address_post>\d+)|(\(?(?<block>\d+) BLOCK\)?))$)?",
-        )
-        .expect("bad regular expression")
-
-        // Regex::new(r"(?<street>(\w+[ \w]+[[:alpha:]]+))( +((?<address_post>\d+)))?")
-        //     .expect("bad regular expression")
-    });
-
-    let caps = address_matcher.captures(road);
-
-    if let Some(caps) = caps {
-        NormalizedRoad {
-            road: caps.name("street").map(|m| m.as_str()).unwrap_or(road),
-            address: caps
-                .name("address_pre")
-                .or_else(|| caps.name("address_post"))
-                .map(|s| s.as_str()),
-            block: caps.name("block").map(|m| m.as_str()),
-            direction: caps.name("direction").map(|m| m.as_str()),
-        }
-    } else {
-        NormalizedRoad {
-            road,
-            address: None,
-            block: None,
-            direction: None,
-        }
+        test("GRANT", "GRANT", None, None, None);
+        test("1201 2ND ST", "2ND ST", Some("1201"), None, None);
+        test("WARD 1403", "WARD", Some("1403"), None, None);
+        test("RT 123", "RT 123", None, None, None);
+        test("RT 13", "RT 13", None, None, None);
+        test("RT 80 E", "RT 80", None, None, Some("E"));
+        test("RT1805", "RT1805", None, None, None);
+        test("SAN PABLO 1229", "SAN PABLO", Some("1229"), None, None);
+        test("6TH  ST", "6TH ST", None, None, None);
+        test("7 GAUSS WAY", "GAUSS WAY", Some("7"), None, None);
+        test("ASHBY AVE.", "ASHBY AVE", None, None, None);
+        test(
+            "EUCLID AVE (600 BLOCK)",
+            "EUCLID AVE",
+            None,
+            Some("600"),
+            None,
+        );
+        test("RT 80 E/B", "RT 80", None, None, Some("E/B"));
+        test("I-80 WB TO UNIVERSITY AVE", "I-80", None, None, Some("WB"));
+        test("I-80 E/B TO I-580 W/B", "I-80", None, None, Some("E/B"));
+        test(
+            "1313 NINTH STREET (PARKING LOT)",
+            "NINTH STREET",
+            Some("1313"),
+            None,
+            None,
+        );
+        test(
+            "85 EL CAMINO REAL RD",
+            "EL CAMINO REAL RD",
+            Some("85"),
+            None,
+            None,
+        );
+        test(
+            "8TH STREET, 1400 BLOCK",
+            "8TH STREET",
+            None,
+            Some("1400"),
+            None,
+        );
+        test(
+            "ADDISON ST. WESTBOUND, 1500 BLOCK",
+            "ADDISON ST",
+            None,
+            Some("1500"),
+            Some("WESTBOUND"),
+        );
+        test(
+            "CEDAR ST. (2200 BLOCK)",
+            "CEDAR ST",
+            None,
+            Some("2200"),
+            None,
+        );
+        test(
+            "CEDAR STREET, 1800 BLOCK",
+            "CEDAR STREET",
+            None,
+            Some("1800"),
+            None,
+        );
+        test(
+            "CHANNING WAY E/B  800 BLOCK",
+            "CHANNING WAY E",
+            None,
+            Some("800"),
+            None,
+        );
+        test(
+            "CAMPUS DR, 1400 BLOCK",
+            "CAMPUS DR",
+            None,
+            Some("1400"),
+            None,
+        );
+        test(
+            "CAMPUS DR., 1400 BLOCK",
+            "CAMPUS DR",
+            None,
+            Some("1400"),
+            None,
+        );
     }
-}
-
-#[test]
-fn test_normalize_road() {
-    let test = |raw, road, address, block, direction| {
-        assert_eq!(
-            NormalizedRoad {
-                road,
-                address,
-                block,
-                direction,
-            },
-            normalize_road(raw)
-        )
-    };
-
-    test("GRANT", "GRANT", None, None, None);
-    test("1201 2ND ST", "2ND ST", Some("1201"), None, None);
-    test("WARD 1403", "WARD", Some("1403"), None, None);
-    test("RT 123", "RT 123", None, None, None);
-    test("RT 13", "RT 13", None, None, None);
-    test("RT 80 E", "RT 80", None, None, Some("E"));
-    test("RT1805", "RT1805", None, None, None);
-    test("SAN PABLO 1229", "SAN PABLO", Some("1229"), None, None);
-    test("6TH  ST", "6TH  ST", None, None, None);
-    test("7 GAUSS WAY", "GAUSS WAY", Some("7"), None, None);
-    test("ASHBY AVE.", "ASHBY AVE", None, None, None);
-    test(
-        "EUCLID AVE (600 BLOCK)",
-        "EUCLID AVE",
-        None,
-        Some("600"),
-        None,
-    );
-    test("RT 80 E/B", "RT 80", None, None, Some("E/B"));
-    test("I-80 WB TO UNIVERSITY AVE", "I-80", None, None, Some("WB"));
-    test("I-80 E/B TO I-580 W/B", "I-80", None, None, Some("E/B"));
-    test(
-        "1313 NINTH STREET (PARKING LOT)",
-        "NINTH STREET",
-        Some("1313"),
-        None,
-        None,
-    );
-    test(
-        "85 EL CAMINO REAL RD",
-        "EL CAMINO REAL RD",
-        Some("85"),
-        None,
-        None,
-    );
-    test(
-        "8TH STREET, 1400 BLOCK",
-        "8TH STREET",
-        None,
-        Some("1400"),
-        None,
-    );
-    test(
-        "ADDISON ST. WESTBOUND, 1500 BLOCK",
-        "ADDISON ST",
-        None,
-        Some("1500"),
-        Some("WESTBOUND"),
-    );
-    test(
-        "CEDAR ST. (2200 BLOCK)",
-        "CEDAR ST",
-        None,
-        Some("2200"),
-        None,
-    );
-    test(
-        "CEDAR STREET, 1800 BLOCK",
-        "CEDAR STREET",
-        None,
-        Some("1800"),
-        None,
-    );
-    test(
-        "CHANNING WAY E/B  800 BLOCK",
-        "CHANNING WAY E",
-        None,
-        Some("800"),
-        None,
-    );
-    test(
-        "CAMPUS DR, 1400 BLOCK",
-        "CAMPUS DR",
-        None,
-        Some("1400"),
-        None,
-    );
-    test(
-        "CAMPUS DR., 1400 BLOCK",
-        "CAMPUS DR",
-        None,
-        Some("1400"),
-        None,
-    );
 }
