@@ -319,7 +319,7 @@ fn normalize_road(road: &str) -> NormalizedRoad<'_> {
 
     let address_matcher: &Regex = ADDRESS_MATCHER.get_or_init(|| {
         Regex::new(
-            r"(^(?<address_pre>\d+) +)?(?<street>(I-\d+)|(RT +\d+)|(\w+[ \w]+[[:alpha:]]+))([\.,])*(/B)?( +(?<direction>NORTHBOUND|EASTBOUND|WESTBOUND|SOUTHBOUND|N/B|E/B|W/B|S/B|NB|EB|WB|SB|N|E|W|S)[\.,/]*)?( +((?<address_post>\d+)|(\(?(?<block>\d+) BLOCK\)?))$)?",
+            r"(^(?<address_pre>\d+) +)?((?<direction_pre>NORTHBOUND|EASTBOUND|WESTBOUND|SOUTHBOUND|NORTH|EAST|WEST|SOUTH|N/B|E/B|W/B|S/B|NB|EB|WB|SB|N|E|W|S) +)?(?<street>(I-\d+)|(RT +\d+)|(\w+[ \w]+[[:alpha:]]+))([\.,])*(/B)?( +(?<direction_post>NORTHBOUND|EASTBOUND|WESTBOUND|SOUTHBOUND|NORTH|EAST|WEST|SOUTH|N/B|E/B|W/B|S/B|NB|EB|WB|SB|N|E|W|S)[\.,/]*)?( +((?<address_post>\d+)|(\(?(?<block>\d+) BLOCK\)?))$)?",
         )
         .expect("bad regular expression")
     });
@@ -340,7 +340,7 @@ fn normalize_road(road: &str) -> NormalizedRoad<'_> {
                 .or_else(|| caps.name("address_post"))
                 .map(|s| s.as_str()),
             block: caps.name("block").map(|m| m.as_str()),
-            direction: caps.name("direction").map(|m| m.as_str()),
+            direction: caps.name("direction_post").or_else(|| caps.name("direction_pre")).map(|m| m.as_str()),
         }
     } else {
         let road = replace_spaces.replace_all(road, " ");
@@ -703,5 +703,7 @@ mod tests {
             Some("1400"),
             None,
         );
+        test("W COLUSA AV", "COLUSA AV", None, None, Some("W"));
+        test("EAST ASHBY AVE","ASHBY AVE",None, None, Some("EAST"));
     }
 }
