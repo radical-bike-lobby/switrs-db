@@ -1,0 +1,1 @@
+CREATE TABLE berkeley_road_typos (correct_rd VARCHAR(256), normalized_rd VARCHAR(256));
