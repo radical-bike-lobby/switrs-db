@@ -104,8 +104,6 @@ pub trait NewDB {
         name: &str,
         table_data: &Path,
     ) -> Result<usize, Box<dyn std::error::Error>> {
-        let fixup_roads = name == "collisions";
-
         // open the csv file
         let mut csv = csv::ReaderBuilder::new()
             .quoting(true)
@@ -165,36 +163,6 @@ pub trait NewDB {
             .connection()
             .prepare(&format!("INSERT INTO {name} ({fields}) VALUES({values})"))?;
 
-        // when processing collision data, we will cleanup some data,
-        //   for that we have some custom insert and one off tables
-        let mut insert_road_stmt = if fixup_roads {
-            Some(self.connection().prepare(
-                "INSERT INTO normalized_roads (
-                case_id,
-                primary_rd,
-                primary_rd_address,
-                primary_rd_block,
-                primary_rd_direction,
-                secondary_rd,
-                secondary_rd_address,
-                secondary_rd_block,
-                seconardy_rd_direction
-            ) VALUES(
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?
-            )",
-            )?)
-        } else {
-            None
-        };
-
         // collect all the data
         let mut count = 0;
         for record in csv.into_records() {
@@ -214,33 +182,6 @@ pub trait NewDB {
                     }
                     println!();
                 })?;
-
-            // add normalized roads from the collisions table
-            if fixup_roads {
-                let case_id = record.get(case_id_idx);
-                let primary_rd = record.get(primary_rd_idx);
-                let secondary_rd = record.get(secondary_rd_idx);
-
-                let primary_rd = primary_rd.map(normalize_road);
-                let secondary_rd = secondary_rd.map(normalize_road);
-
-                if let Some(case_id) = case_id {
-                    insert_road_stmt.as_mut().unwrap().insert([
-                        Some(case_id), 
-                        primary_rd.as_ref().map(|r| r.road.deref()),
-                        primary_rd.as_ref().and_then(|r| r.address),
-                        primary_rd.as_ref().and_then(|r| r.block),
-                        primary_rd.as_ref().and_then(|r| r.direction),
-                        secondary_rd.as_ref().map(|r| r.road.deref()),
-                        secondary_rd.as_ref().and_then(|r| r.address),
-                        secondary_rd.as_ref().and_then(|r| r.block),
-                        secondary_rd.as_ref().and_then(|r| r.direction),
-                    ])
-                    .inspect_err(|e| {
-                        println!("error on insert into normalized_road: {e}, row {count}: case_id={case_id},primary={primary_rd:?},secondary={secondary_rd:?}");
-                    })?;
-                }
-            }
 
             count += 1;
         }
@@ -270,9 +211,11 @@ pub trait NewDB {
         schemas: &Schema,
         data: &Path,
     ) -> Result<(), Box<dyn std::error::Error>> {
+        // initialize lookup tables
         self.connection()
             .init_lookup_tables(&schemas.lookup_tables, &schemas.lookup_schema)?;
 
+        // Build all the standard tables
         for table_name in &schemas.table_order {
             let table: &PrimaryTable = schemas
                 .tables
@@ -292,6 +235,132 @@ pub trait NewDB {
             if let Some(data) = data {
                 self.connection().load_data(table_name, &data)?;
             }
+        }
+
+        // build fixup tables
+        self.fixup_tables()?;
+
+        Ok(())
+    }
+
+    /// Run tasks to fill fixup tables, or produce csv's which add lookup tables to cleanup data
+    fn fixup_tables(&self) -> Result<(), Box<dyn std::error::Error>> {
+        self.fixup_roads()?;
+
+        Ok(())
+    }
+
+    fn fixup_roads(&self) -> Result<(), Box<dyn std::error::Error>> {
+        // when processing collision data, we will cleanup some data,
+        //   for that we have some custom insert and one off tables
+        let mut insert_road_stmt = self.connection().prepare(
+            "INSERT INTO normalized_roads (
+                case_id,
+                primary_rd,
+                primary_rd_address,
+                primary_rd_block,
+                primary_rd_direction,
+                secondary_rd,
+                secondary_rd_address,
+                secondary_rd_block,
+                seconardy_rd_direction
+            ) VALUES(
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?
+            )",
+        )?;
+
+        let mut select_roads = self
+            .connection()
+            .prepare("SELECT case_id, primary_rd, secondary_rd FROM collisions")?;
+
+        let mut roads = select_roads.query([])?;
+        while let Some(road) = roads.next()? {
+            // add normalized roads from the collisions table
+            let case_id = road.get_ref("case_id")?.as_str()?;
+            let primary_rd = road.get_ref("primary_rd")?.as_str()?;
+            let secondary_rd = road.get_ref("secondary_rd")?.as_str()?;
+
+            let primary_rd = normalize_road(primary_rd);
+            let secondary_rd = normalize_road(secondary_rd);
+
+            insert_road_stmt.insert([
+            Some(case_id), 
+            Some(&primary_rd.road),
+            primary_rd.address,
+            primary_rd.block,
+            primary_rd.direction,
+            Some(&secondary_rd.road),
+            secondary_rd.address,
+            secondary_rd.block,
+            secondary_rd.direction,
+        ])
+        .inspect_err(|e| {
+            println!("error on insert into normalized_roadcase_id={case_id},primary={primary_rd:?},secondary={secondary_rd:?}: {e}");
+        })?;
+        }
+
+        //
+        // find all roads not in our known roads list
+        //   we will prefer names that match the "known list", the move to the normalized name matching, then typos
+        let mut select_roads = self
+            .connection()
+            .prepare("
+                SELECT 
+                n.case_id as case_id,
+                n.primary_rd as normal_primary_rd,
+                n.primary_rd_address,
+                n.primary_rd_block,
+                n.primary_rd_direction,
+                n.secondary_rd as normal_secondary_rd,
+                n.secondary_rd_address,
+                n.secondary_rd_block,
+                n.seconardy_rd_direction,
+                c.primary_rd as original_primary_rd,
+                c.secondary_rd as original_secondary_rd,
+                cp.primary_rd as verified_primary_rd,
+                cs.secondary_rd as verified_secondary_rd,
+                tp.correct_rd as corrected_primary_rd,
+                ts.correct_rd as corrected_secondary_rd
+                FROM 
+                normalized_roads as n
+                LEFT JOIN collisions as c ON c.case_id = n.case_id
+                LEFT JOIN collisions as cp ON cp.case_id = n.case_id AND cp.primary_rd in (SELECT DISTINCT correct_rd FROM berkeley_road_typos)
+                LEFT JOIN collisions as cs ON cs.case_id = n.case_id AND cs.primary_rd in (SELECT DISTINCT correct_rd FROM berkeley_road_typos)
+                LEFT JOIN berkeley_road_typos as tp ON tp.normalized_rd = n.primary_rd
+                LEFT JOIN berkeley_road_typos as ts ON ts.normalized_rd = n.secondary_rd
+            ")?;
+        let mut corrections = select_roads.query([])?;
+
+        while let Some(correction) = corrections.next()? {
+            let case_id = correction.get_ref("case_id")?.as_str()?;
+            let normal_primary_rd = correction.get_ref("normal_primary_rd")?.as_str()?;
+            // // primary_rd_address,
+            // // primary_rd_block,
+            // // primary_rd_direction,
+            let normal_secondary_rd = correction.get_ref("normal_secondary_rd")?.as_str()?;
+            // // secondary_rd_address,
+            // // secondary_rd_block,
+            // // seconardy_rd_direction,
+            let original_primary_rd = correction.get_ref("original_primary_rd")?.as_str()?;
+            let original_secondary_rd = correction.get_ref("original_secondary_rd")?.as_str()?;
+            let verified_primary_rd = correction.get_ref("verified_primary_rd")?.as_str_or_null()?;
+            let verified_secondary_rd = correction.get_ref("verified_secondary_rd")?.as_str_or_null()?;
+            let corrected_primary_rd = correction.get_ref("corrected_primary_rd")?.as_str_or_null()?;
+            let corrected_secondary_rd = correction.get_ref("corrected_secondary_rd")?.as_str_or_null()?;
+
+
+            let primary_rd = verified_primary_rd.or(corrected_primary_rd);
+            let secondary_rd = verified_secondary_rd.or(corrected_secondary_rd);
+
+            println!("{case_id}: {primary_rd:?}, {secondary_rd:?}")
         }
 
         Ok(())
@@ -340,7 +409,10 @@ fn normalize_road(road: &str) -> NormalizedRoad<'_> {
                 .or_else(|| caps.name("address_post"))
                 .map(|s| s.as_str()),
             block: caps.name("block").map(|m| m.as_str()),
-            direction: caps.name("direction_post").or_else(|| caps.name("direction_pre")).map(|m| m.as_str()),
+            direction: caps
+                .name("direction_post")
+                .or_else(|| caps.name("direction_pre"))
+                .map(|m| m.as_str()),
         }
     } else {
         let road = replace_spaces.replace_all(road, " ");
@@ -704,6 +776,6 @@ mod tests {
             None,
         );
         test("W COLUSA AV", "COLUSA AV", None, None, Some("W"));
-        test("EAST ASHBY AVE","ASHBY AVE",None, None, Some("EAST"));
+        test("EAST ASHBY AVE", "ASHBY AVE", None, None, Some("EAST"));
     }
 }
