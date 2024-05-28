@@ -1,12 +1,7 @@
 //! Schema operations for the SWITRS sqlite DB creation
 
 use std::{
-    borrow::Cow,
-    collections::HashMap,
-    fs,
-    ops::Deref,
-    path::{Path, PathBuf},
-    sync::OnceLock,
+    borrow::Cow, collections::HashMap, fs, io::Write, ops::Deref, path::{Path, PathBuf}, sync::OnceLock
 };
 
 use new_string_template::template::Template;
@@ -325,20 +320,27 @@ pub trait NewDB {
                 n.seconardy_rd_direction,
                 c.primary_rd as original_primary_rd,
                 c.secondary_rd as original_secondary_rd,
+                cr.primary_rd as correct_primary_rd,
+                cr.secondary_rd as correct_secondary_rd,
                 cp.primary_rd as verified_primary_rd,
                 cs.secondary_rd as verified_secondary_rd,
-                tp.correct_rd as corrected_primary_rd,
-                ts.correct_rd as corrected_secondary_rd
+                tp.correct_rd as suggest_primary_rd,
+                ts.correct_rd as suggest_secondary_rd
                 FROM 
                 normalized_roads as n
-                LEFT JOIN collisions as c ON c.case_id = n.case_id
+                LEFT JOIN collisions_view as c ON c.case_id = n.case_id
+                LEFT JOIN corrected_roads as cr ON cr.case_id = n.case_id
                 LEFT JOIN collisions as cp ON cp.case_id = n.case_id AND cp.primary_rd in (SELECT DISTINCT correct_rd FROM berkeley_road_typos)
                 LEFT JOIN collisions as cs ON cs.case_id = n.case_id AND cs.primary_rd in (SELECT DISTINCT correct_rd FROM berkeley_road_typos)
                 LEFT JOIN berkeley_road_typos as tp ON tp.normalized_rd = n.primary_rd
                 LEFT JOIN berkeley_road_typos as ts ON ts.normalized_rd = n.secondary_rd
+                ORDER BY case_id
             ")?;
         let mut corrections = select_roads.query([])?;
 
+        // we will always rebuild the corrections file.
+        let mut corrected_roads = fs::OpenOptions::new().truncate(true).write(true).open("berkeley-tables/CORRECTED_ROADS.csv")?;
+        writeln!(corrected_roads, "case_id,primary_rd,secondary_rd")?;
         while let Some(correction) = corrections.next()? {
             let case_id = correction.get_ref("case_id")?.as_str()?;
             let normal_primary_rd = correction.get_ref("normal_primary_rd")?.as_str()?;
@@ -351,16 +353,27 @@ pub trait NewDB {
             // // seconardy_rd_direction,
             let original_primary_rd = correction.get_ref("original_primary_rd")?.as_str()?;
             let original_secondary_rd = correction.get_ref("original_secondary_rd")?.as_str()?;
+
+            let correct_primary_rd = correction.get_ref("correct_primary_rd")?.as_str_or_null()?;
+            let correct_secondary_rd = correction.get_ref("correct_secondary_rd")?.as_str_or_null()?;
+            
             let verified_primary_rd = correction.get_ref("verified_primary_rd")?.as_str_or_null()?;
             let verified_secondary_rd = correction.get_ref("verified_secondary_rd")?.as_str_or_null()?;
-            let corrected_primary_rd = correction.get_ref("corrected_primary_rd")?.as_str_or_null()?;
-            let corrected_secondary_rd = correction.get_ref("corrected_secondary_rd")?.as_str_or_null()?;
+            let suggest_primary_rd = correction.get_ref("suggest_primary_rd")?.as_str_or_null()?;
+            let suggest_secondary_rd = correction.get_ref("suggest_secondary_rd")?.as_str_or_null()?;
 
+            let primary_rd = correct_primary_rd.or(verified_primary_rd.or(suggest_primary_rd)).unwrap_or("");
+            let secondary_rd = correct_secondary_rd.or(verified_secondary_rd.or(suggest_secondary_rd)).unwrap_or("");
 
-            let primary_rd = verified_primary_rd.or(corrected_primary_rd);
-            let secondary_rd = verified_secondary_rd.or(corrected_secondary_rd);
+            writeln!(corrected_roads, "{case_id},\"{primary_rd}\",\"{secondary_rd}\"")?;
+            
+            if primary_rd.is_empty() {
+                println!("WARNING {case_id} has unknown primary_rd: {original_primary_rd}")
+            }
 
-            println!("{case_id}: {primary_rd:?}, {secondary_rd:?}")
+            if secondary_rd.is_empty() {
+                println!("WARNING {case_id} has unknown secondary_rd: {original_secondary_rd}")
+            }
         }
 
         Ok(())
