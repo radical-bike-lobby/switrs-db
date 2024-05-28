@@ -311,19 +311,19 @@ pub trait NewDB {
             let secondary_rd = normalize_road(secondary_rd);
 
             insert_road_stmt.insert([
-            Some(case_id), 
-            Some(&primary_rd.road),
-            primary_rd.address,
-            primary_rd.block,
-            primary_rd.direction,
-            Some(&secondary_rd.road),
-            secondary_rd.address,
-            secondary_rd.block,
-            secondary_rd.direction,
-        ])
-        .inspect_err(|e| {
-            println!("error on insert into normalized_roadcase_id={case_id},primary={primary_rd:?},secondary={secondary_rd:?}: {e}");
-        })?;
+                Some(case_id),
+                Some(&primary_rd.road),
+                primary_rd.address,
+                primary_rd.block,
+                primary_rd.direction,
+                Some(&secondary_rd.road),
+                secondary_rd.address,
+                secondary_rd.block,
+                secondary_rd.direction,
+            ])
+            .inspect_err(|e| {
+                println!("error on insert into normalized_roadcase_id={case_id},primary={primary_rd:?},secondary={secondary_rd:?}: {e}");
+            })?;
         }
 
         //
@@ -418,7 +418,12 @@ pub trait NewDB {
 
         // reload data from the CORRECTED_ROADS
         println!("RELOADING corrected_roads with any new roads");
-        self.load_data_with_options("corrected_roads", Path::new("berkeley-tables/CORRECTED_ROADS.csv"), true, true)?;
+        self.load_data_with_options(
+            "corrected_roads",
+            Path::new("berkeley-tables/CORRECTED_ROADS.csv"),
+            true,
+            true,
+        )?;
 
         Ok(())
     }
