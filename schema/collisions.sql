@@ -158,7 +158,9 @@ CREATE VIEW collisions_view (
     stwd_vehtype_at_fault_name,
     chp_vehtype_at_fault_name,
     primary_ramp_name,
-    secondary_ramp_name
+    secondary_ramp_name,
+    corrected_primary_rd,
+    corrected_secondary_rd
 ) AS SELECT 
     c.case_id,
     printf("%s %s%s, CA", c.primary_rd, iif(c.secondary_rd IS NOT NULL, printf("and %s ", c.secondary_rd), ""), cnty_city_loc.city),
@@ -208,7 +210,9 @@ CREATE VIEW collisions_view (
     stwd_vehtype_at_fault.name,
     chp_vehtype.name,
     primary_ramp.name,
-    secondary_ramp.name
+    secondary_ramp.name,
+    corrected_roads.primary_rd,
+    corrected_roads.secondary_rd
 FROM collisions AS c
 -- join all the foreign key tables
 LEFT JOIN day_of_week ON c.day_of_week = day_of_week.id
@@ -241,6 +245,7 @@ LEFT JOIN stwd_vehtype_at_fault ON c.stwd_vehtype_at_fault = stwd_vehtype_at_fau
 LEFT JOIN chp_vehtype ON c.chp_vehtype_at_fault = chp_vehtype.id
 LEFT JOIN ramp primary_ramp ON c.primary_ramp = primary_ramp.id
 LEFT JOIN ramp secondary_ramp ON c.secondary_ramp = secondary_ramp.id
+LEFT JOIN corrected_roads ON c.case_id = corrected_roads.case_id
 WHERE 
 c.cnty_city_loc IN ("0102", "0103") -- see lookup-tables/CNTY_CITY_LOC.csv
 ;
