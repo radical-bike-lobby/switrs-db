@@ -1,7 +1,12 @@
 //! Schema operations for the SWITRS sqlite DB creation
 
 use std::{
-    borrow::Cow, collections::HashMap, fs, io::Write, ops::Deref, path::{Path, PathBuf}, sync::OnceLock
+    borrow::Cow,
+    collections::HashMap,
+    fs,
+    io::Write,
+    path::{Path, PathBuf},
+    sync::OnceLock,
 };
 
 use new_string_template::template::Template;
@@ -99,6 +104,17 @@ pub trait NewDB {
         name: &str,
         table_data: &Path,
     ) -> Result<usize, Box<dyn std::error::Error>> {
+        self.load_data_with_options(name, table_data, false, false)
+    }
+
+    /// Load data into the named table from the CSV file at the given table_data path
+    fn load_data_with_options(
+        &self,
+        name: &str,
+        table_data: &Path,
+        allow_duplicates: bool,
+        report_new_entries: bool,
+    ) -> Result<usize, Box<dyn std::error::Error>> {
         // open the csv file
         let mut csv = csv::ReaderBuilder::new()
             .quoting(true)
@@ -115,9 +131,6 @@ pub trait NewDB {
         // build up the insert statement
         let mut field_count = 0;
         let headers_record;
-        let mut case_id_idx = 0usize;
-        let mut primary_rd_idx = 0usize;
-        let mut secondary_rd_idx = 0usize;
 
         let (fields, values) = {
             // construct "field = "
@@ -125,7 +138,7 @@ pub trait NewDB {
             let mut fields = String::new();
             let mut values = String::new();
             let mut first = true;
-            for (idx, f) in headers_record.into_iter().enumerate() {
+            for f in headers_record.into_iter() {
                 if !first {
                     fields.push_str(", ");
                     values.push_str(", ");
@@ -133,16 +146,7 @@ pub trait NewDB {
                     first = false;
                 }
 
-                let f = f.to_lowercase();
-                if f.to_lowercase() == "case_id" {
-                    case_id_idx = idx;
-                } else if f == "primary_rd" {
-                    primary_rd_idx = idx;
-                } else if f == "secondary_rd" {
-                    secondary_rd_idx = idx;
-                }
-
-                fields.push_str(&f);
+                fields.push_str(f);
                 values.push('?');
                 field_count += 1;
             }
@@ -170,6 +174,24 @@ pub trait NewDB {
 
             insert_stmt
                 .insert(params_from_iter(record_iter))
+                .inspect(|count| {
+                    if report_new_entries && *count > 0 {
+                        print!("    INSERTED ");
+                        for (field, value) in headers_record.iter().zip(record.iter()) {
+                            print!("{field}={value},");
+                        }
+                        println!();
+                    }
+                })
+                .or_else(|result| {
+                    // if we're allowing dups, ignore the error
+                    //  TODO: this should probably check for the correct error
+                    if allow_duplicates {
+                        Ok(0)
+                    } else {
+                        Err(result)
+                    }
+                })
                 .inspect_err(|e| {
                     print!("error on insert into {name}: {e}, row {count}:");
                     for (field, value) in headers_record.iter().zip(record.iter()) {
@@ -245,6 +267,8 @@ pub trait NewDB {
         Ok(())
     }
 
+    /// This uses the Berkeley Road Typos and the Corrected Roads to construct a lookup table with correct road names
+    ///   for each Case ID
     fn fixup_roads(&self) -> Result<(), Box<dyn std::error::Error>> {
         // when processing collision data, we will cleanup some data,
         //   for that we have some custom insert and one off tables
@@ -339,42 +363,62 @@ pub trait NewDB {
         let mut corrections = select_roads.query([])?;
 
         // we will always rebuild the corrections file.
-        let mut corrected_roads = fs::OpenOptions::new().truncate(true).write(true).open("berkeley-tables/CORRECTED_ROADS.csv")?;
+        let mut corrected_roads = fs::OpenOptions::new()
+            .truncate(true)
+            .write(true)
+            .open("berkeley-tables/CORRECTED_ROADS.csv")?;
         writeln!(corrected_roads, "case_id,primary_rd,secondary_rd")?;
         while let Some(correction) = corrections.next()? {
             let case_id = correction.get_ref("case_id")?.as_str()?;
             let normal_primary_rd = correction.get_ref("normal_primary_rd")?.as_str()?;
-            // // primary_rd_address,
-            // // primary_rd_block,
-            // // primary_rd_direction,
             let normal_secondary_rd = correction.get_ref("normal_secondary_rd")?.as_str()?;
-            // // secondary_rd_address,
-            // // secondary_rd_block,
-            // // seconardy_rd_direction,
             let original_primary_rd = correction.get_ref("original_primary_rd")?.as_str()?;
             let original_secondary_rd = correction.get_ref("original_secondary_rd")?.as_str()?;
 
             let correct_primary_rd = correction.get_ref("correct_primary_rd")?.as_str_or_null()?;
-            let correct_secondary_rd = correction.get_ref("correct_secondary_rd")?.as_str_or_null()?;
-            
-            let verified_primary_rd = correction.get_ref("verified_primary_rd")?.as_str_or_null()?;
-            let verified_secondary_rd = correction.get_ref("verified_secondary_rd")?.as_str_or_null()?;
+            let correct_secondary_rd = correction
+                .get_ref("correct_secondary_rd")?
+                .as_str_or_null()?;
+
+            let verified_primary_rd = correction
+                .get_ref("verified_primary_rd")?
+                .as_str_or_null()?;
+            let verified_secondary_rd = correction
+                .get_ref("verified_secondary_rd")?
+                .as_str_or_null()?;
             let suggest_primary_rd = correction.get_ref("suggest_primary_rd")?.as_str_or_null()?;
-            let suggest_secondary_rd = correction.get_ref("suggest_secondary_rd")?.as_str_or_null()?;
+            let suggest_secondary_rd = correction
+                .get_ref("suggest_secondary_rd")?
+                .as_str_or_null()?;
 
-            let primary_rd = correct_primary_rd.or(verified_primary_rd.or(suggest_primary_rd)).unwrap_or("");
-            let secondary_rd = correct_secondary_rd.or(verified_secondary_rd.or(suggest_secondary_rd)).unwrap_or("");
+            let primary_rd = correct_primary_rd
+                .or(verified_primary_rd.or(suggest_primary_rd))
+                .unwrap_or("");
+            let secondary_rd = correct_secondary_rd
+                .or(verified_secondary_rd.or(suggest_secondary_rd))
+                .unwrap_or("");
 
-            writeln!(corrected_roads, "{case_id},\"{primary_rd}\",\"{secondary_rd}\"")?;
-            
+            writeln!(
+                corrected_roads,
+                "{case_id},\"{primary_rd}\",\"{secondary_rd}\""
+            )?;
+
             if primary_rd.is_empty() {
-                println!("WARNING {case_id} has unknown primary_rd: {original_primary_rd}")
+                println!("WARNING {case_id} has unknown primary_rd: {original_primary_rd}");
+                println!("  to get of this warning add '{normal_primary_rd}' as 'normalized_rd' to berkeley-tables/BERKELEY_ROAD_TYPOS.csv and the 'correct_rd' entry");
+                println!("  or add the original name '{original_primary_rd}' as 'normalized_rd' to berkeley-tables/BERKELEY_ROAD_TYPOS.csv and the 'correct_rd' entry");
             }
 
             if secondary_rd.is_empty() {
-                println!("WARNING {case_id} has unknown secondary_rd: {original_secondary_rd}")
+                println!("WARNING {case_id} has unknown secondary_rd: {original_secondary_rd}");
+                println!("  to get of this warning add '{normal_secondary_rd}' as 'normalized_rd' to berkeley-tables/BERKELEY_ROAD_TYPOS.csv and the 'correct_rd' entry");
+                println!("  or add the original name '{original_secondary_rd}' as 'normalized_rd' to berkeley-tables/BERKELEY_ROAD_TYPOS.csv and the 'correct_rd' entry");
             }
         }
+
+        // reload data from the CORRECTED_ROADS
+        println!("RELOADING corrected_roads with any new roads");
+        self.load_data_with_options("corrected_roads", Path::new("berkeley-tables/CORRECTED_ROADS.csv"), true, true)?;
 
         Ok(())
     }
