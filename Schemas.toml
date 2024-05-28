@@ -3,12 +3,12 @@
 
 # order in which to process the primary tables
 table-order = [
-    "normalized_roads",
     "collisions",
     "parties",
     "victims",
     "intersection_improvements",
     "street_improvements",
+    "normalized_roads",
 ]
 
 # schema definition for the lookup tables, has parameters of {name} and {pk_type}
