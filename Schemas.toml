@@ -88,3 +88,4 @@ victim_sex = { pk_type = "CHAR(1)", data = "lookup-tables/victim-tables/VICTIM_S
 ca_bike_lane_types = { pk_type = "INTEGER", data = "berkeley-tables/CA_BIKE_LANE_TYPES.csv", schema = "schema/ca_bike_lane_types.sql" }
 improvement_types = { pk_type = "INTEGER", data = "berkeley-tables/IMPROVEMENT_TYPES.csv", schema = "schema/improvement_types.sql" }
 berkeley_road_typos = { pk_type = "NULL", data = "berkeley-tables/BERKELEY_ROAD_TYPOS.csv", schema = "schema/berkeley_road_typos.sql" }
+corrected_roads = { pk_type = "NULL", data = "berkeley-tables/CORRECTED_ROADS.csv", schema = "schema/corrected_roads.sql" }
