@@ -355,7 +355,7 @@ pub trait NewDB {
                 LEFT JOIN collisions_view as c ON c.case_id = n.case_id
                 LEFT JOIN corrected_roads as cr ON cr.case_id = n.case_id
                 LEFT JOIN collisions as cp ON cp.case_id = n.case_id AND cp.primary_rd in (SELECT DISTINCT correct_rd FROM berkeley_road_typos)
-                LEFT JOIN collisions as cs ON cs.case_id = n.case_id AND cs.primary_rd in (SELECT DISTINCT correct_rd FROM berkeley_road_typos)
+                LEFT JOIN collisions as cs ON cs.case_id = n.case_id AND cs.secondary_rd in (SELECT DISTINCT correct_rd FROM berkeley_road_typos)
                 LEFT JOIN berkeley_road_typos as tp ON tp.normalized_rd = n.primary_rd
                 LEFT JOIN berkeley_road_typos as ts ON ts.normalized_rd = n.secondary_rd
                 ORDER BY case_id
