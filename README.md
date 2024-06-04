@@ -67,82 +67,33 @@ sqlite> SELECT * FROM collisions_view WHERE primary_rd LIKE "%Hopkins%" AND bicy
 8595513|HOPKINS ST and CURTIS ST Berkeley, CA|2018-05-01|2018-02-05T12:21|HOPKINS ST|CURTIS ST|||Y|0|1|0|0|0|0|1|||Monday|Not CHP|Incorporated (100000 - 250000)|Berkeley|Not Above|Not CHP|Not CHP|West|Clear|Not Stated||||Injury (Other Visible)|(Vehicle) Code Violation|Not Stated|Improper Turning|Not Hit and Run|Broadside|Bicycle|No Pedestrian Involved|Dry|No Unusual Condition|Not Stated|Daylight|None|Bicycle|Bicycle|Not Stated|Not Stated
 ```
 
-## import-bicycl-crashes.sh
+## Data Sources
 
-The original shell script from marc
+### Lookup Tables From SWITRS
 
-*note*: These instructions rely on `brew` being installed, https://brew.sh
+The SWITRS DB internally uses special codes for each of the data columns. To make this easier to access, lookup-tables have been built from the Raw Data export: `{{source_dir}}/RawData_template.docx`. Each has code has been defined in `lookup-tables`, for example `lookup-tables/COLLISION_SEVERITY.csv` contains all the mappings from the Collision Severity code and mapped to it's definition.
 
-- Install sqlite-utils and just:
+The `collisions` table is joined against the tables at the root of `lookup-tables`, while the `parties` and `victims` tables are joined against the data in `lookup-tables/party-tables` and `lookup-tables/victim-tables` respectively.
 
-```shell
-brew install sqlite-utils just
-```
+### Berkeley Specific Data
 
-- Download the raw SWITRS db from https://iswitrs.chp.ca.gov/Reports/jsp/RawData.jsp
+Similar to the `lookup-tables` there is `berkeley-tables`. These are specific data enhancements for the City of Berkeley, CA. 
 
-Ensure you've navigated to the `Raw Data` section.
-In the `INCLUDES IN THE REPORT FILE` section, select both `LAT/LONG` and `HEADER` options. It's fast enough to download the entire DB from the past, e.g. 2010. *note* TBD for a start date.
+#### Fixing Road Names
 
-Insert dates for the the request, await email. Download and unzip the file. Copy the path to the file, this will hence forth be referred to as `${REPORT_DIR}`
+Specifically, to correct the road names in the `collisions.primary_rd` and `collisions.secondary_rd` columns, there is `berkeley-tables/CORRECTED_ROADS.csv`. For each `collisions.case_id` the primary and secondary roads can be renamed. The names that appear in the `corrected_roads` column should be contained in the `berkeley-tables/BERKELEY_ROAD_TYPOS.csv`. Any name matched in `corrected_roads.normalized_rd` will be automatically added to `berkeley-tables/CORRECTED_ROADS.csv`. If this file is modified after running the `switrs-db` tool means that new road mappings were added, possibly for new cases. This should be checked into the repo and reviewed for accuracy.
 
-- just run the build target from
+#### Road Safety Improvements
 
-Using the directory from above as `${REPORT_DIR}`:
+There are two tables tracking the road safety improvements. The `berkeley-tables/INTERSECTION_IMPROVEMENTS.csv` table tracks upgraded intersections in Berkeley, pedestrian refuge islands for example. The `berkeley-tables/STREET_IMPROVEMENTS.csv` table tracks any improvements made along the entire street, protected bike lanes for example. These tables are both joined against the `berkeley-tables/CA_BIKE_LANE_TYPES.csv` and `berkeley-tables/IMPROVEMENT_TYPES.csv` tables which map the improvement type to it's description.
 
-```shell
-just build ${REPORT_DIR}
-```
+#### References
 
-For example, if the download was extracted in your `~/Downloads` directory and named `4481761401380215189`, the output would be something like:
-
-```shell
-> just build ~/Downloads/4481761401380215189
-mkdir -pv /Users/benjaminfry/Development/radical-bike-lobby/switrs-db/target/build
-/Users/benjaminfry/Development/radical-bike-lobby/switrs-db/target/build
-[[ -L /Users/benjaminfry/Development/radical-bike-lobby/switrs-db/target/build/lookup-tables ]] || ln -s /Users/benjaminfry/Development/radical-bike-lobby/switrs-db/lookup-tables /Users/benjaminfry/Development/radical-bike-lobby/switrs-db/target/build/lookup-tables 
-cd target/4481761401380215189 && cp CollisionRecords.txt PartyRecords.txt VictimRecords.txt /Users/benjaminfry/Development/radical-bike-lobby/switrs-db/target/build
-cd /Users/benjaminfry/Development/radical-bike-lobby/switrs-db/target/build && /bin/bash /Users/benjaminfry/Development/radical-bike-lobby/switrs-db/import-bicycle-crashes.sh
-  [###################################-]   99%  00:00:00
-  [####################################]  100%
-  [####################################]  100%          
-  [####################################]  100%
-  [###################################-]   99%  00:00:00
-  [###################################-]   97%  00:00:00
-  [#################################---]   91%
-  [##################################--]   94%
-  [##################################--]   96%
-  [###################################-]   98%
-  [###################################-]   97%
-  [##################################--]   95%
-  [################################----]   90%
-  [################################----]   90%
-  [#################################---]   94%
-  [##################################--]   96%
-  [##################################--]   94%
-  [##################################--]   95%
-  [##################################--]   95%
-  [##################################--]   95%
-  [#################################---]   93%
-  [#################################---]   94%
-  [##################################--]   96%
-  [#################################---]   94%
-  [##################################--]   95%
-  [##################################--]   95%
-  [##################################--]   95%
-  [#################################---]   93%
-  [##################################--]   95%
-  [###################################-]   97%
-  [##################################--]   94%
-  [##################################--]   94%
-```
-
-- Use the Sqlite DB
-
-The Sqlite DB should be in `target/build/records.db`.
-
-For example, dump the schema:
-
-```shell
-sqlite-utils schema target/build/records.db
-```
+- `berkeley-tables/CA_BIKE_LANE_TYPES.csv` - [Wikipedia California Bikeway Classifications](https://en.wikipedia.org/wiki/)California_bikeway_classifications
+- `berkeley-tables/IMPROVEMENT_TYPES.csv` - generally from [NACTO](https://nacto.org/)
+- `berkeley-tables/BERKELEY_ROAD_TYPOS.csv` - [Google Maps](https://www.google.com/maps)
+- `berkeley-tables/INTERSECTION_IMPROVEMENTS.csv` & `berkeley-tables/STREET_IMPROVEMENTS.csv`
+  - [Berkeley Vision Zero Action Plan](https://berkeleyca.gov/your-government/our-work/adopted-plans/vision-zero-action-plan)
+  - Cedar St & Ninth St - [Change Order, Contract #4058, Date 2-16-21](https://records.cityofberkeley.info/PublicAccess/api/Document/AeUyxgWoImu97YNooRr9qGMNRqJMzNKgt58UCkRf0FQVPÁuB4yÁJ5TC8cdS1o8lQrLRCrlpb91gX3MkNs8YÉ4AQ%3D/)
+  - Martin Luther King Jr. Way - [Vision Zero Quick Build](https://berkeleyca.gov/your-government/our-work/capital-projects/martin-luther-king-jr-way-vision-zero-quick-build#:~:text=Proposed%20improvements%20from%20the%20Berkeley,using%20red%20curbs%2C%20night%20lighting%2C)
+  - Hopkins St & The Alameda Protected Intersection - [Berkeley Gets a Protected Intersection](https://cal.streetsblog.org/2016/12/20/berkeley-gets-a-protected-intersection)
