@@ -60,6 +60,7 @@ CREATE INDEX idx_parties_case_id ON parties(case_id);
 CREATE VIEW parties_view (
     case_id,
     party_number,
+    party_type,
     at_fault,
     party_age,
     oaf_viol_section,
@@ -90,6 +91,7 @@ CREATE VIEW parties_view (
 ) AS SELECT 
     p.case_id,
     p.party_number,
+    p.party_type,
     p.at_fault,
     p.party_age,
     p.oaf_viol_section,
