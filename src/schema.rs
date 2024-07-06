@@ -496,10 +496,10 @@ mod tests {
     fn test_toml() {
         let schemas = Schema::from_toml_file(Path::new("Schemas.toml")).expect("toml is bad");
 
-        assert_eq!(schemas.table_order[1], "collisions");
+        assert_eq!(schemas.table_order[1], "parties");
         assert_eq!(
-            schemas.tables["collisions"].schema,
-            Path::new("schema/collisions.sql")
+            schemas.tables["parties"].schema,
+            Path::new("schema/parties.sql")
         );
     }
 
