@@ -1,0 +1,54 @@
+name: test
+
+on:
+  push:
+    branches:
+      - main
+      - release/**
+  pull_request:
+    branches:
+      - main
+      - release/**
+  schedule:
+    - cron: "0 3 * * 4"
+
+# env:
+#   CARGO_WS_VERSION: "0.2.44"
+
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: extractions/setup-just@v2
+
+      - name: cargo test
+        run: cargo test
+
+  ## Execute the clippy checks
+  cleanliness:
+    name: cleanliness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+
+      - uses: extractions/setup-just@v2
+
+      # Clippy
+      - name: cargo clippy
+        run: cargo clippy
+      # Rustfmt
+      - name: cargo fmt
+        run: cargo fmt --check
+      # Audit
+      - name: cargo audit
+        run: cargo audit
