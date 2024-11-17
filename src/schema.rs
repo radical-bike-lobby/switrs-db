@@ -104,7 +104,7 @@ pub trait NewDB {
         name: &str,
         table_data: &Path,
     ) -> Result<usize, Box<dyn std::error::Error>> {
-        self.load_data_with_options(name, table_data, false, false)
+        self.load_data_with_options(name, table_data, true, false)
     }
 
     /// Load data into the named table from the CSV file at the given table_data path
@@ -184,9 +184,24 @@ pub trait NewDB {
                     }
                 })
                 .or_else(|result| {
+                    use rusqlite::ffi;
+                    use rusqlite::Error::SqliteFailure;
+                    use rusqlite::ErrorCode::ConstraintViolation;
+
                     // if we're allowing dups, ignore the error
                     //  TODO: this should probably check for the correct error
-                    if allow_duplicates {
+                    if allow_duplicates
+                        && matches!(
+                            result,
+                            SqliteFailure(
+                                ffi::Error {
+                                    code: ConstraintViolation,
+                                    ..
+                                },
+                                ..
+                            )
+                        )
+                    {
                         Ok(0)
                     } else {
                         Err(result)

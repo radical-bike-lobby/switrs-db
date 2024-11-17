@@ -75,6 +75,7 @@ CREATE TABLE collisions (
     secondary_ramp, -- Same as above (see lookup-tables/PRIMARY_RAMP.csv)
     latitude FLOAT,
     longitude FLOAT,
+    local_report_number, -- Local police report number
     PRIMARY KEY(case_id)
     -- all foreign keys
     FOREIGN KEY(day_of_week) REFERENCES day_of_week(id)
