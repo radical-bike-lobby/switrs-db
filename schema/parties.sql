@@ -32,6 +32,7 @@ CREATE TABLE parties (
     inattention, -- Undocumented, unused?
     special_info_f, -- Undocumented, unused?
     special_info_g, -- Undocumented, unused?
+    local_report_number, -- Local Police Report Number
     PRIMARY KEY(case_id, party_number) -- Multiple parties in each case
     -- add foreign keys
     FOREIGN KEY(case_id) REFERENCES collisions(case_id)
