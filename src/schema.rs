@@ -9,6 +9,7 @@ use std::{
     sync::OnceLock,
 };
 
+use log::{debug, error, info, log_enabled, trace, warn, Level};
 use new_string_template::template::Template;
 use regex::Regex;
 use rusqlite::{params_from_iter, Connection};
@@ -176,11 +177,15 @@ pub trait NewDB {
                 .insert(params_from_iter(record_iter))
                 .inspect(|count| {
                     if report_new_entries && *count > 0 {
-                        print!("    INSERTED ");
-                        for (field, value) in headers_record.iter().zip(record.iter()) {
-                            print!("{field}={value},");
+                        if log_enabled!(Level::Info) {
+                            use std::fmt::Write;
+                            let mut fields = String::new();
+                            for (field, value) in headers_record.iter().zip(record.iter()) {
+                                write!(&mut fields, "{field}={value},")
+                                    .expect("failed to write to string");
+                            }
+                            info!("INSERTED {fields}");
                         }
-                        println!();
                     }
                 })
                 .or_else(|result| {
@@ -208,16 +213,23 @@ pub trait NewDB {
                     }
                 })
                 .inspect_err(|e| {
-                    print!("error on insert into {name}: {e}, row {count}:");
-                    for (field, value) in headers_record.iter().zip(record.iter()) {
-                        print!("{field}={value},");
+                    if log_enabled!(Level::Error) {
+                        use std::fmt::Write;
+                        let mut error_message = String::new();
+
+                        for (field, value) in headers_record.iter().zip(record.iter()) {
+                            write!(error_message, "{field}={value},")
+                                .expect("Failed to write to error message");
+                        }
+
+                        error!("error on insert into {name}: {e}, row {count}:");
                     }
-                    println!();
                 })?;
 
             count += 1;
         }
 
+        info!("INSERTED {count} records");
         Ok(count)
     }
 
@@ -228,7 +240,7 @@ pub trait NewDB {
         table_schema: &Path,
     ) -> Result<(), Box<dyn std::error::Error>> {
         for (name, table) in lookup_tables {
-            println!("LOADING {name}");
+            info!("LOADING {name}");
             let schema = table.schema.as_deref().unwrap_or(table_schema);
             self.create_table(name, &table.pk_type, schema)?;
             self.load_data(name, &table.data)?;
@@ -260,7 +272,7 @@ pub trait NewDB {
                 DataPath::Empty => None,
             };
 
-            println!("LOADING {table_name}");
+            info!("LOADING {table_name}");
             self.connection()
                 .create_table(table_name, "", &table.schema)?;
 
@@ -337,7 +349,7 @@ pub trait NewDB {
                 secondary_rd.direction,
             ])
             .inspect_err(|e| {
-                println!("error on insert into normalized_roadcase_id={case_id},primary={primary_rd:?},secondary={secondary_rd:?}: {e}");
+                error!("error on insert into normalized_roadcase_id={case_id},primary={primary_rd:?},secondary={secondary_rd:?}: {e}");
             })?;
         }
 
@@ -347,7 +359,7 @@ pub trait NewDB {
         let mut select_roads = self
             .connection()
             .prepare("
-                SELECT 
+                SELECT
                 n.case_id as case_id,
                 n.primary_rd as normal_primary_rd,
                 n.primary_rd_address,
@@ -365,7 +377,7 @@ pub trait NewDB {
                 cs.secondary_rd as verified_secondary_rd,
                 tp.correct_rd as suggest_primary_rd,
                 ts.correct_rd as suggest_secondary_rd
-                FROM 
+                FROM
                 normalized_roads as n
                 LEFT JOIN collisions_view as c ON c.case_id = n.case_id
                 LEFT JOIN corrected_roads as cr ON cr.case_id = n.case_id
@@ -419,20 +431,20 @@ pub trait NewDB {
             )?;
 
             if primary_rd.is_empty() {
-                println!("WARNING {case_id} has unknown primary_rd: {original_primary_rd}");
-                println!("  to get of this warning add '{normal_primary_rd}' as 'normalized_rd' to berkeley-tables/BERKELEY_ROAD_TYPOS.csv and the 'correct_rd' entry");
-                println!("  or add the original name '{original_primary_rd}' as 'normalized_rd' to berkeley-tables/BERKELEY_ROAD_TYPOS.csv and the 'correct_rd' entry");
+                warn!("WARNING {case_id} has unknown primary_rd: {original_primary_rd}");
+                warn!("  to get of this warning add '{normal_primary_rd}' as 'normalized_rd' to berkeley-tables/BERKELEY_ROAD_TYPOS.csv and the 'correct_rd' entry");
+                warn!("  or add the original name '{original_primary_rd}' as 'normalized_rd' to berkeley-tables/BERKELEY_ROAD_TYPOS.csv and the 'correct_rd' entry");
             }
 
             if secondary_rd.is_empty() {
-                println!("WARNING {case_id} has unknown secondary_rd: {original_secondary_rd}");
-                println!("  to get of this warning add '{normal_secondary_rd}' as 'normalized_rd' to berkeley-tables/BERKELEY_ROAD_TYPOS.csv and the 'correct_rd' entry");
-                println!("  or add the original name '{original_secondary_rd}' as 'normalized_rd' to berkeley-tables/BERKELEY_ROAD_TYPOS.csv and the 'correct_rd' entry");
+                warn!("WARNING {case_id} has unknown secondary_rd: {original_secondary_rd}");
+                warn!("  to get of this warning add '{normal_secondary_rd}' as 'normalized_rd' to berkeley-tables/BERKELEY_ROAD_TYPOS.csv and the 'correct_rd' entry");
+                warn!("  or add the original name '{original_secondary_rd}' as 'normalized_rd' to berkeley-tables/BERKELEY_ROAD_TYPOS.csv and the 'correct_rd' entry");
             }
         }
 
         // reload data from the CORRECTED_ROADS
-        println!("RELOADING corrected_roads with any new roads");
+        info!("RELOADING corrected_roads with any new roads");
         self.load_data_with_options(
             "corrected_roads",
             Path::new("berkeley-tables/CORRECTED_ROADS.csv"),
