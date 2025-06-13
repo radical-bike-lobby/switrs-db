@@ -9,7 +9,7 @@ use std::{
     sync::OnceLock,
 };
 
-use log::{debug, error, info, log_enabled, trace, warn, Level};
+use log::{debug, error, info, log_enabled, warn, Level};
 use new_string_template::template::Template;
 use regex::Regex;
 use rusqlite::{params_from_iter, Connection};
@@ -177,14 +177,14 @@ pub trait NewDB {
                 .insert(params_from_iter(record_iter))
                 .inspect(|count| {
                     if report_new_entries && *count > 0 {
-                        if log_enabled!(Level::Info) {
+                        if log_enabled!(Level::Debug) {
                             use std::fmt::Write;
                             let mut fields = String::new();
                             for (field, value) in headers_record.iter().zip(record.iter()) {
                                 write!(&mut fields, "{field}={value},")
                                     .expect("failed to write to string");
                             }
-                            info!("INSERTED {fields}");
+                            debug!("INSERTED {fields}");
                         }
                     }
                 })
