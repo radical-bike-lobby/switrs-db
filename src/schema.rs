@@ -3,7 +3,7 @@
 use std::{
     borrow::Cow,
     collections::HashMap,
-    fs,
+    fs::{self, File},
     io::Write,
     path::{Path, PathBuf},
     sync::OnceLock,
@@ -14,6 +14,10 @@ use new_string_template::template::Template;
 use regex::Regex;
 use rusqlite::{params_from_iter, Connection};
 use serde::Deserialize;
+
+const CRASHES: &str = "Crashes";
+const INJURED_WITNESS_PASSENGERS: &str = "InjuredWitnessPassengers";
+const PARTIES: &str = "Parties";
 
 /// Specifies which schema and data should be used for creating a table
 #[derive(Debug, Deserialize)]
@@ -253,7 +257,8 @@ pub trait NewDB {
     fn load_from_schema(
         &self,
         schemas: &Schema,
-        data: &Path,
+        old_switrs_path: &Path,
+        ccrs_data_path: &Path,
     ) -> Result<(), Box<dyn std::error::Error>> {
         // initialize lookup tables
         self.connection()
@@ -267,7 +272,7 @@ pub trait NewDB {
                 .ok_or_else(|| format!("table missing from [tables]: {table_name}"))?;
 
             let data = match &table.data {
-                DataPath::RawData(path) => Some(data.join(path)),
+                DataPath::RawData(path) => Some(old_switrs_path.join(path)),
                 DataPath::Path(path) => Some(path.clone()),
                 DataPath::Empty => None,
             };
@@ -279,6 +284,54 @@ pub trait NewDB {
             if let Some(data) = data {
                 self.connection().load_data(table_name, &data)?;
             }
+        }
+
+        //
+        // load ccrs data
+        if !ccrs_data_path.is_dir() {
+            return Err(Box::<dyn std::error::Error>::from(format!(
+                "ccrs data directory not found"
+            )));
+        }
+
+        let mut crashes = Vec::<PathBuf>::new();
+        let mut parties = Vec::<PathBuf>::new();
+        let mut injured_witness_passengers = Vec::<PathBuf>::new();
+        let dir = fs::read_dir(ccrs_data_path)?;
+        for entry in dir {
+            let entry = entry?;
+            if !entry.file_type()?.is_file() {
+                continue;
+            }
+
+            let path = entry.path();
+            match path
+                .file_name()
+                .ok_or(format!("not a file: {}", path.display()))?
+                .to_string_lossy()
+            {
+                file_name if file_name.starts_with(CRASHES) => crashes.push(path),
+                file_name if file_name.starts_with(PARTIES) => parties.push(path),
+                file_name if file_name.starts_with(INJURED_WITNESS_PASSENGERS) => {
+                    injured_witness_passengers.push(path)
+                }
+                _ => continue,
+            }
+        }
+
+        for csv_reader in crashes.iter().map(|path| csv::Reader::from_path(path)) {
+            let mut csv_reader = match csv_reader {
+                Ok(cr) => cr,
+                Err(e) => {
+                    error!("Error reading csv file: {}", e);
+                    continue;
+                }
+            };
+
+            csv_reader
+                .headers()
+                .inspect(|headers| info!("{headers:#?}"))
+                .ok();
         }
 
         // build fixup tables

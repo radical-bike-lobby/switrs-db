@@ -13,7 +13,7 @@ const OLD_SWITRS_PATH: &str = "old-switrs";
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    /// Path to the raw data dump from iswitrs
+    /// Path to the raw data dump from CCRS, ckan, Open Data Portal for California
     #[arg(short = 'd')]
     data_path: PathBuf,
 
@@ -31,6 +31,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("switrs_db=info"))
         .init();
 
+    let old_switrs_path = Path::new(OLD_SWITRS_PATH);
     let data_path = args.data_path;
     let sqlite_file = args.sqlite_file;
     let schema = args.schema;
@@ -45,7 +46,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let connection = Connection::open_in_memory()?;
 
     let schemas = Schema::from_toml_file(&schema)?;
-    connection.load_from_schema(&schemas, &Path::new(OLD_SWITRS_PATH))?;
+    connection.load_from_schema(&schemas, &old_switrs_path, &data_path)?;
 
     info!(
         "Successfully imported data, writing DB to {sqlite_file}",
