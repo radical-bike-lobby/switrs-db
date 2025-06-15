@@ -1,4 +1,4 @@
-CREATE TABLE collisions (
+CREATE TABLE ccrs_crashes (
     collision_id INTEGER, -- the unique identifier of the crash report
     report_number VARCHAR2 (25), -- The unique identifier of the crash report within one NCIC, but it’s not unique across CA state
     report_version INTEGER, -- Version of the crash submitted

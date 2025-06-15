@@ -31,6 +31,8 @@ pub struct LookupTable {
 #[derive(Debug, Deserialize)]
 #[serde(tag = "type", content = "path", rename_all = "snake_case")]
 pub enum DataPath {
+    /// Filename match string for CCRS data files
+    CcrsData(String),
     /// The file name (relative to where the raw data was extracted) of the csv data
     RawData(PathBuf),
     /// Path relative to the application
@@ -151,7 +153,10 @@ pub trait NewDB {
                     first = false;
                 }
 
-                fields.push_str(f);
+                // fixup names with spaces
+                let f = f.replace(" ", "_");
+
+                fields.push_str(&f);
                 values.push('?');
                 field_count += 1;
             }
@@ -271,20 +276,36 @@ pub trait NewDB {
                 .get(table_name)
                 .ok_or_else(|| format!("table missing from [tables]: {table_name}"))?;
 
-            let data = match &table.data {
-                DataPath::RawData(path) => Some(old_switrs_path.join(path)),
-                DataPath::Path(path) => Some(path.clone()),
-                DataPath::Empty => None,
+            match &table.data {
+                DataPath::CcrsData(regex) => {
+                    self.load_ccrs_csvs(table, table_name, ccrs_data_path, &regex)?
+                }
+                DataPath::RawData(path) => {
+                    self.load_from_csv(table, table_name, Some(old_switrs_path.join(path)))?
+                }
+                DataPath::Path(path) => {
+                    self.load_from_csv(table, table_name, Some(path.clone()))?
+                }
+                DataPath::Empty => self.load_from_csv(table, table_name, None)?,
             };
-
-            info!("LOADING {table_name}");
-            self.connection()
-                .create_table(table_name, "", &table.schema)?;
-
-            if let Some(data) = data {
-                self.connection().load_data(table_name, &data)?;
-            }
         }
+
+        // build fixup tables
+        self.fixup_tables()?;
+
+        Ok(())
+    }
+
+    /// Load CCRS data tables
+    fn load_ccrs_csvs(
+        &self,
+        table: &PrimaryTable,
+        table_name: &str,
+        ccrs_data_path: &Path,
+        regex_name: &str,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        info!("LOADING CCRS Table: {table_name}");
+        let regex = Regex::new(regex_name)?;
 
         //
         // load ccrs data
@@ -294,9 +315,7 @@ pub trait NewDB {
             )));
         }
 
-        let mut crashes = Vec::<PathBuf>::new();
-        let mut parties = Vec::<PathBuf>::new();
-        let mut injured_witness_passengers = Vec::<PathBuf>::new();
+        let mut paths = Vec::<PathBuf>::new();
         let dir = fs::read_dir(ccrs_data_path)?;
         for entry in dir {
             let entry = entry?;
@@ -305,37 +324,37 @@ pub trait NewDB {
             }
 
             let path = entry.path();
-            match path
+            let file_name = path
                 .file_name()
                 .ok_or(format!("not a file: {}", path.display()))?
-                .to_string_lossy()
-            {
-                file_name if file_name.starts_with(CRASHES) => crashes.push(path),
-                file_name if file_name.starts_with(PARTIES) => parties.push(path),
-                file_name if file_name.starts_with(INJURED_WITNESS_PASSENGERS) => {
-                    injured_witness_passengers.push(path)
-                }
-                _ => continue,
+                .to_string_lossy();
+
+            if regex.is_match(&file_name) {
+                paths.push(path);
             }
         }
 
-        for csv_reader in crashes.iter().map(|path| csv::Reader::from_path(path)) {
-            let mut csv_reader = match csv_reader {
-                Ok(cr) => cr,
-                Err(e) => {
-                    error!("Error reading csv file: {}", e);
-                    continue;
-                }
-            };
-
-            csv_reader
-                .headers()
-                .inspect(|headers| info!("{headers:#?}"))
-                .ok();
+        for path in paths {
+            self.load_from_csv(table, table_name, Some(path))?;
         }
 
-        // build fixup tables
-        self.fixup_tables()?;
+        Ok(())
+    }
+
+    /// insert_from_csvs
+    fn load_from_csv(
+        &self,
+        table: &PrimaryTable,
+        table_name: &str,
+        data_path: Option<PathBuf>,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        info!("LOADING {table_name} from {data_path:?}");
+        self.connection()
+            .create_table(table_name, "", &table.schema)?;
+
+        if let Some(data) = data_path {
+            self.connection().load_data(table_name, &data)?;
+        }
 
         Ok(())
     }
