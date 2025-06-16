@@ -1,4 +1,4 @@
-CREATE TABLE ccrs_crashes (
+CREATE TABLE IF NOT EXISTS ccrs_crashes (
     collision_id INTEGER, -- the unique identifier of the crash report
     report_number VARCHAR2 (25), -- The unique identifier of the crash report within one NCIC, but it’s not unique across CA state
     report_version INTEGER, -- Version of the crash submitted
@@ -34,8 +34,10 @@ CREATE TABLE ccrs_crashes (
     weather_2 VARCHAR2 (50), -- Weather condition at the time of the crash -- Same as weather 1 above
     road_condition_1 VARCHAR2 (50), -- Roadway condition at the time of the crash in the traffic lane(s) involved. -- A - Holes, Deep Ruts; B - Loose Material on Roadway; C - Obstruction on Roadway; D - Construction or Repair Zone; E - Reduced Roadway Width; F - Flooded; G - Other; H - No Unusual Condition
     road_condition_2 VARCHAR2 (50), -- Second roadway condition at the time of the crash in the traffic lane(s) involved. -- Same as road condition 1 above
-    special_condition VARCHAR2 (50), -- Indicate type of crash report Note: if the report has more than one special conditions, the values are separated by a slash (/) -- Counter Report, Courtesy Report, Farm Labor Vehicle, Fatal, Hazardous Material, Late-Reported, On-Duty Emergency Vehicle, Preliminary, Private Property, School Bus Collision, No Pupils on School Bus, 550, Tribal Land Reportable, Tribal Land Non-Reportable, Autonomous Vehicle, MAIT (PRIMARY), MAIT SUPPLEMENTAL, Nonreportable, or Incident Only
-    lighting_code CHAR(1), -- A-DAYLIGHT, B-DUSK-DAWN, C-DARK-STREET LIGHTS, D-DARK-NO STREET LIGHTS, E-DARK-STREET LIGHTS NOT FUNCTIONING*
+    --special_condition VARCHAR2 (50), -- Indicate type of crash report Note: if the report has more than one special conditions, the values are separated by a slash (/) -- Counter Report, Courtesy Report, Farm Labor Vehicle, Fatal, Hazardous Material, Late-Reported, On-Duty Emergency Vehicle, Preliminary, Private Property, School Bus Collision, No Pupils on School Bus, 550, Tribal Land Reportable, Tribal Land Non-Reportable, Autonomous Vehicle, MAIT (PRIMARY), MAIT SUPPLEMENTAL, Nonreportable, or Incident Only
+    --lighting_code CHAR(1), -- A-DAYLIGHT, B-DUSK-DAWN, C-DARK-STREET LIGHTS, D-DARK-NO STREET LIGHTS, E-DARK-STREET LIGHTS NOT FUNCTIONING*
+    -- -- Something looks wrong with this field, these are described as two separate fields, but they are combined into the below
+    special_condition_lighting_code VARCHAR2 (50), -- Indicate type of crash report Note: if the report has more than one special conditions, the values are separated by a slash (/) -- Counter Report, Courtesy Report, Farm Labor Vehicle, Fatal, Hazardous Material, Late-Reported, On-Duty Emergency Vehicle, Preliminary, Private Property, School Bus Collision, No Pupils on School Bus, 550, Tribal Land Reportable, Tribal Land Non-Reportable, Autonomous Vehicle, MAIT (PRIMARY), MAIT SUPPLEMENTAL, Nonreportable, or Incident Only
     lighting_description VARCHAR2 (50), -- A-DAYLIGHT, B-DUSK-DAWN, C-DARK-STREET LIGHTS, D-DARK-NO STREET LIGHTS, E-DARK-STREET LIGHTS NOT FUNCTIONING*
     latitude FLOAT,
     longitude FLOAT,
@@ -54,7 +56,8 @@ CREATE TABLE ccrs_crashes (
     reporting_district VARCHAR2 (100),
     reporting_district_code VARCHAR2 (10),
     reviewed_date TEXT, -- Date the report was reviewed for final approval
-    road_surface_code CHAR(1), -- A-DRY, B-WET, C-SNOWY-ICY, D-SLIPPERY(MUDDY,OILY,ETC)
+    --road_surface_code CHAR(1), -- A-DRY, B-WET, C-SNOWY-ICY, D-SLIPPERY(MUDDY,OILY,ETC)
+    roadway_surface_code CHAR(1), -- A-DRY, B-WET, C-SNOWY-ICY, D-SLIPPERY(MUDDY,OILY,ETC)
     secondary_direction CHAR(1), -- Direction of the secondary road from the primary road -- N - North, E - East, S - South, W - West, - or blank  - Not Stated, in Intersection
     secondary_distance FLOAT, -- Distance from the secondary road to the primary road
     secondary_road VARCHAR2 (100), -- The nearest crossed road where the crash occurred
@@ -66,7 +69,8 @@ CREATE TABLE ccrs_crashes (
     is_county_road CHAR(1), -- True/False
     is_freeway CHAR(1), -- True/False
     chp555_version INTEGER, -- Version of the report identified by CHP -- 1,2,3,4
-    is_additional_object_struck CHAR(1), -- True/False
+    --is_additional_object_struck CHAR(1), -- True/False
+    is_additonal_object_struck CHAR(1), -- True/False
     notification_date TEXT, -- Date and Time when the crashed was notified
     notification_time_description VARCHAR2 (10), -- the time the crash notified using a 24-hour clock
     has_digital_media_files CHAR(1), -- True/False

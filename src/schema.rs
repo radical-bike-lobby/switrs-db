@@ -9,15 +9,12 @@ use std::{
     sync::OnceLock,
 };
 
+use heck::ToSnakeCase;
 use log::{debug, error, info, log_enabled, warn, Level};
 use new_string_template::template::Template;
 use regex::Regex;
 use rusqlite::{params_from_iter, Connection};
 use serde::Deserialize;
-
-const CRASHES: &str = "Crashes";
-const INJURED_WITNESS_PASSENGERS: &str = "InjuredWitnessPassengers";
-const PARTIES: &str = "Parties";
 
 /// Specifies which schema and data should be used for creating a table
 #[derive(Debug, Deserialize)]
@@ -154,7 +151,8 @@ pub trait NewDB {
                 }
 
                 // fixup names with spaces
-                let f = f.replace(" ", "_");
+                let f = f.to_snake_case();
+                //let f = f.replace(" ", "_");
 
                 fields.push_str(&f);
                 values.push('?');
