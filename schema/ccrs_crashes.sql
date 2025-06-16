@@ -76,5 +76,6 @@ CREATE TABLE IF NOT EXISTS ccrs_crashes (
     has_digital_media_files CHAR(1), -- True/False
     evidence_number VARCHAR2 (25),
     is_location_refer_to_narrative CHAR(1), -- True/False
-    is_aoi_one_same_as_location CHAR(1) -- True/False
+    is_aoi_one_same_as_location CHAR(1), -- True/False
+    PRIMARY KEY (collision_id)
 )
