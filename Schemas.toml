@@ -4,6 +4,8 @@
 # order in which to process the primary tables
 table-order = [
     "ccrs_crashes",
+    "ccrs_parties",
+    "ccrs_injured_witness_passengers",
     "collisions",
     "parties",
     "victims",
@@ -18,6 +20,8 @@ lookup-schema = "schema/pk_table.sql"
 # the primary tables to load, should exist in the table-order array above
 [tables]
 ccrs_crashes = { schema = "schema/ccrs_crashes.sql", type = "ccrs_data", path = "Crashes_([0-9]*).csv" }
+ccrs_parties = { schema = "schema/ccrs_parties.sql", type = "ccrs_data", path = "Parties_([0-9]*).csv" }
+ccrs_injured_witness_passengers = { schema = "schema/ccrs_injured_witness_passengers.sql", type = "ccrs_data", path = "InjuredWitnessPassengers_([0-9]*).csv" }
 collisions = { schema = "schema/collisions.sql", type = "raw_data", path = "CollisionRecords.txt" }
 parties = { schema = "schema/parties.sql", type = "raw_data", path = "PartyRecords.txt" }
 victims = { schema = "schema/victims.sql", type = "raw_data", path = "VictimRecords.txt" }

@@ -3,7 +3,7 @@
 use std::{
     borrow::Cow,
     collections::HashMap,
-    fs::{self, File},
+    fs,
     io::Write,
     path::{Path, PathBuf},
     sync::OnceLock,
@@ -162,6 +162,7 @@ pub trait NewDB {
             (fields, values)
         };
 
+        debug!("CSV Fields: {fields}");
         if field_count == 0 {
             return Ok(0);
         }
@@ -173,7 +174,13 @@ pub trait NewDB {
         // collect all the data
         let mut count = 0;
         for record in csv.into_records() {
-            let record = record?;
+            let record = match record {
+                Ok(record) => record,
+                Err(err) => {
+                    warn!("Error parsing CSV record: {err}",);
+                    continue;
+                }
+            };
 
             // convert empty strings to NULL, should we change '-' to NULL as well?
             let record_iter = record
