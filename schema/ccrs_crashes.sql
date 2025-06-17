@@ -78,4 +78,4 @@ CREATE TABLE IF NOT EXISTS ccrs_crashes (
     is_location_refer_to_narrative CHAR(1), -- True/False
     is_aoi_one_same_as_location CHAR(1), -- True/False
     PRIMARY KEY (collision_id)
-)
+);
