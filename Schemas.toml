@@ -6,12 +6,12 @@ table-order = [
     "ccrs_crashes",
     "ccrs_parties",
     "ccrs_injured_witness_passengers",
-    "collisions",
-    "parties",
-    "victims",
+    "switrs_collisions",
+    "switrs_parties",
+    "switrs_victims",
     "intersection_improvements",
     "street_improvements",
-    "normalized_roads",
+    "switrs_normalized_roads",
     "cleanup",
 ]
 
@@ -23,10 +23,10 @@ lookup-schema = "schema/pk_table.sql"
 ccrs_crashes = { schema = "schema/ccrs_crashes.sql", type = "ccrs_data", path = "Crashes_([0-9]*).csv" }
 ccrs_parties = { schema = "schema/ccrs_parties.sql", type = "ccrs_data", path = "Parties_([0-9]*).csv" }
 ccrs_injured_witness_passengers = { schema = "schema/ccrs_injured_witness_passengers.sql", type = "ccrs_data", path = "InjuredWitnessPassengers_([0-9]*).csv" }
-collisions = { schema = "schema/collisions.sql", type = "raw_data", path = "CollisionRecords.txt" }
-parties = { schema = "schema/parties.sql", type = "raw_data", path = "PartyRecords.txt" }
-victims = { schema = "schema/victims.sql", type = "raw_data", path = "VictimRecords.txt" }
-normalized_roads = { schema = "schema/normalized_roads.sql", type = "empty" }
+switrs_collisions = { schema = "schema/switrs_collisions.sql", type = "raw_data", path = "CollisionRecords.txt" }
+switrs_parties = { schema = "schema/switrs_parties.sql", type = "raw_data", path = "PartyRecords.txt" }
+switrs_victims = { schema = "schema/switrs_victims.sql", type = "raw_data", path = "VictimRecords.txt" }
+switrs_normalized_roads = { schema = "schema/switrs_normalized_roads.sql", type = "empty" }
 cleanup = { schema = "schema/cleanup.sql", type = "empty" }
 
 # berkeley specific tables
@@ -41,7 +41,7 @@ chp_beat_class = { pk_type = "CHAR(1)", data = "lookup-tables/CHP_BEAT_CLASS.csv
 chp_beat_type = { pk_type = "CHAR(1)", data = "lookup-tables/CHP_BEAT_TYPE.csv" }
 chp_shift = { pk_type = "CHAR(1)", data = "lookup-tables/CHP_SHIFT.csv" }
 chp_vehtype = { pk_type = "CHAR(2)", data = "lookup-tables/party-tables/CHP_VEHICLE_TYPE_TOWED.csv" }
-cnty_city_loc = { pk_type = "VARCHAR2(4)", data = "lookup-tables/CNTY_CITY_LOC.csv", schema = "schema/cnty_city_loc.sql" }
+cnty_city_loc = { pk_type = "VARCHAR2(4)", data = "lookup-tables/CNTY_CITY_LOC.csv", schema = "schema/switrs_cnty_city_loc.sql" }
 collision_severity = { pk_type = "CHAR(1)", data = "lookup-tables/COLLISION_SEVERITY.csv" }
 control_device = { pk_type = "CHAR(1)", data = "lookup-tables/CONTROL_DEVICE.csv" }
 day_of_week = { pk_type = "CHAR(1)", data = "lookup-tables/DAY_OF_WEEK.csv" }
@@ -96,4 +96,4 @@ victim_sex = { pk_type = "CHAR(1)", data = "lookup-tables/victim-tables/VICTIM_S
 ca_bike_lane_types = { pk_type = "INTEGER", data = "berkeley-tables/CA_BIKE_LANE_TYPES.csv", schema = "schema/ca_bike_lane_types.sql" }
 improvement_types = { pk_type = "INTEGER", data = "berkeley-tables/IMPROVEMENT_TYPES.csv", schema = "schema/improvement_types.sql" }
 berkeley_road_typos = { pk_type = "NULL", data = "berkeley-tables/BERKELEY_ROAD_TYPOS.csv", schema = "schema/berkeley_road_typos.sql" }
-corrected_roads = { pk_type = "NULL", data = "berkeley-tables/CORRECTED_ROADS.csv", schema = "schema/corrected_roads.sql" }
+corrected_roads = { pk_type = "NULL", data = "berkeley-tables/CORRECTED_ROADS.csv", schema = "schema/switrs_corrected_roads.sql" }
