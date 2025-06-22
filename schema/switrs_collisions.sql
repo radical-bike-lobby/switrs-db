@@ -1,25 +1,25 @@
-CREATE TABLE collisions (
-    case_id VARCHAR2(19), -- Case Id: the unique identifier of the collision report (barcode beginning 2002; 19 digit code prior to 2002)
+CREATE TABLE switrs_collisions (
+    case_id VARCHAR2 (19), -- Case Id: the unique identifier of the collision report (barcode beginning 2002; 19 digit code prior to 2002)
     accident_year INTEGER, -- Collision Year: the year when the collision occurred
     proc_date TEXT, -- Process Date: (YYYYMMDD)
     juris INTEGER, -- Jurisdiction: Four numerics assigned by DOJ
-    collision_date TEXT, -- Collision Date: the date when the collision occurred (YYYYMMDD)	
+    collision_date TEXT, -- Collision Date: the date when the collision occurred (YYYYMMDD)
     collision_time TEXT, -- Collision Time: the time when the collision occurred (24 hour time)	Data may appear with no leading zero(s).
-    officer_id VARCHAR2(8), -- Officer Id
-    reporting_district VARCHAR2(5), -- Reporting District
+    officer_id VARCHAR2 (8), -- Officer Id
+    reporting_district VARCHAR2 (5), -- Reporting District
     day_of_week CHAR(1), -- Day of Week: the code for the day of the week when the collision occurred (see lookup-tables/DAY_OF_WEEK.csv)
     chp_shift CHAR(1), -- CHP Shift (see lookup-tables/CHP_SHIFT.csv)
     population CHAR(1), -- Population (see lookup-tables/POPULATION.csv)
-    cnty_city_loc VARCHAR2(4), -- County City Location: the location code of where the collision occurred. Data may appear with no leading zero.
+    cnty_city_loc VARCHAR2 (4), -- County City Location: the location code of where the collision occurred. Data may appear with no leading zero.
     special_cond CHAR(1), -- Special Condition (see lookup-tables/SPECIAL_CONDITION.csv)
     beat_type CHAR(1), -- Beat Type (see lookup-tables/BEAT_TYPE.csv)
     chp_beat_type CHAR(1), -- CHP Beat Type (see lookup-tables/CHP_BEAT_TYPE.csv)
     city_division_lapd CHAR(1), -- City Division LAPD: Includes blanks and dashes as not stated.
     chp_beat_class CHAR(1), -- CHP Beat Class
-    beat_number VARCHAR2(6), -- Beat Number
-    primary_rd VARCHAR2(50), -- Primary Rd
-    secondary_rd VARCHAR2(50), -- Secondary Rd
-    distance DECIMAL(9,2), -- Distance: distance converted to feet
+    beat_number VARCHAR2 (6), -- Beat Number
+    primary_rd VARCHAR2 (50), -- Primary Rd
+    secondary_rd VARCHAR2 (50), -- Secondary Rd
+    distance DECIMAL(9, 2), -- Distance: distance converted to feet
     direction CHAR(1), -- Direction (see lookup-tables/DIRECTION.csv)
     intersection CHAR(1), -- Intersection: Y - Intersection, N - Not Intersection, Blank - Not stated
     weather_1 CHAR(1), -- Weather 1: the weather condition at the time of the collision (see lookup-tables/WEATHER_1.csv)
@@ -30,7 +30,7 @@ CREATE TABLE collisions (
     state_route INTEGER, -- State Route: 0 = Not State Highway
     route_suffix CHAR(1), -- Route Suffix
     postmile_prefix Char(1), -- Postmile Prefix
-    postmile DECIMAL(6,3), -- Postmile
+    postmile DECIMAL(6, 3), -- Postmile
     location_type CHAR(1), -- Location Type (see lookup-tables/LOCATION_TYPE.csv)
     ramp_intersection CHAR(1), -- Ramp Intersection (see lookup-tables/RAMP_INTERSECTION.csv)
     side_of_hwy CHAR(1), -- Side Of Highway: Code provided by Caltrans Coders; applies to divided highway, based on nominal direction of route; for single vehicle is same as nominal direction of travel, overruled by impact with second vehicle after crossing median (see lookup-tables/SIDE_OF_HIGHWAY.csv)
@@ -71,43 +71,14 @@ CREATE TABLE collisions (
     count_bicyclist_injured INTEGER, -- Bicyclist Injured count: Counts the victims in the collision with party type of 4 and degree of injury is 2, 3, or 4. 0 to N for each collision
     count_mc_killed INTEGER, -- Motorcyclist Killed count: counts victims in the collision with statewide vehicle type of C or O and degree of injury of 1. 0 to N for each collision
     count_mc_injured INTEGER, -- Motorcyclist Injured count: counts victims in the collision with statewide vehicle type of C or O and degree of injury of 2, 3, or 4. 0 to N for each collision
-    primary_ramp VARCHAR2(2), -- Primary Ramp: NO-NB On Ramp, NF-NB Off Ramp, SO-SB On Ramp, SF-SB Off Ramp, EO-EB On Ramp, EF-EB Off Ramp, WO-WB On Ramp, WF-WB Off Ramp, To, From, Transition, Collector, Connector & blank (see lookup-tables/PRIMARY_RAMP.csv)
+    primary_ramp VARCHAR2 (2), -- Primary Ramp: NO-NB On Ramp, NF-NB Off Ramp, SO-SB On Ramp, SF-SB Off Ramp, EO-EB On Ramp, EF-EB Off Ramp, WO-WB On Ramp, WF-WB Off Ramp, To, From, Transition, Collector, Connector & blank (see lookup-tables/PRIMARY_RAMP.csv)
     secondary_ramp, -- Same as above (see lookup-tables/PRIMARY_RAMP.csv)
     latitude FLOAT,
     longitude FLOAT,
     local_report_number, -- Local police report number
-    PRIMARY KEY(case_id)
+    PRIMARY KEY (case_id)
     -- all foreign keys
-    FOREIGN KEY(day_of_week) REFERENCES day_of_week(id)
-    FOREIGN KEY(chp_shift) REFERENCES chp_shift(id)
-    FOREIGN KEY(population) REFERENCES population(id)
-    FOREIGN KEY(cnty_city_loc) REFERENCES cnty_city_loc(id)
-    FOREIGN KEY(special_cond) REFERENCES special_cond(id)
-    FOREIGN KEY(beat_type) REFERENCES beat_type(id)
-    FOREIGN KEY(chp_beat_type) REFERENCES chp_beat_type(id)
-    FOREIGN KEY(direction) REFERENCES direction(id)
-    FOREIGN KEY(weather_1) REFERENCES weather(id)
-    FOREIGN KEY(weather_2) REFERENCES weather(id)
-    FOREIGN KEY(location_type) REFERENCES location_type(id)
-    FOREIGN KEY(ramp_intersection) REFERENCES ramp_intersection(id)
-    FOREIGN KEY(side_of_hwy) REFERENCES side_of_hwy(id)
-    FOREIGN KEY(collision_severity) REFERENCES collision_severity(id)
-    FOREIGN KEY(primary_coll_factor) REFERENCES primary_coll_factor(id)
-    FOREIGN KEY(pcf_code_of_viol) REFERENCES pcf_code_of_viol(id)
-    FOREIGN KEY(pcf_viol_category) REFERENCES pcf_viol_category(id)
-    FOREIGN KEY(hit_and_run) REFERENCES hit_and_run(id)
-    FOREIGN KEY(type_of_collision) REFERENCES type_of_collision(id)
-    FOREIGN KEY(mviw) REFERENCES mviw(id)
-    FOREIGN KEY(ped_action) REFERENCES ped_action(id)
-    FOREIGN KEY(road_surface) REFERENCES road_surface(id)
-    FOREIGN KEY(road_cond_1) REFERENCES road_cond(id)
-    FOREIGN KEY(road_cond_2) REFERENCES road_cond(id)
-    FOREIGN KEY(lighting) REFERENCES lighting(id)
-    FOREIGN KEY(control_device) REFERENCES control_device(id)
-    FOREIGN KEY(stwd_vehtype_at_fault) REFERENCES stwd_vehtype_at_fault(id)
-    FOREIGN KEY(chp_vehtype_at_fault) REFERENCES chp_vehtype(id)
-    FOREIGN KEY(primary_ramp) REFERENCES ramp(id)
-    FOREIGN KEY(secondary_ramp) REFERENCES ramp(id)
+    FOREIGN KEY (day_of_week) REFERENCES day_of_week (id) FOREIGN KEY (chp_shift) REFERENCES chp_shift (id) FOREIGN KEY (population) REFERENCES population (id) FOREIGN KEY (cnty_city_loc) REFERENCES cnty_city_loc (id) FOREIGN KEY (special_cond) REFERENCES special_cond (id) FOREIGN KEY (beat_type) REFERENCES beat_type (id) FOREIGN KEY (chp_beat_type) REFERENCES chp_beat_type (id) FOREIGN KEY (direction) REFERENCES direction (id) FOREIGN KEY (weather_1) REFERENCES weather (id) FOREIGN KEY (weather_2) REFERENCES weather (id) FOREIGN KEY (location_type) REFERENCES location_type (id) FOREIGN KEY (ramp_intersection) REFERENCES ramp_intersection (id) FOREIGN KEY (side_of_hwy) REFERENCES side_of_hwy (id) FOREIGN KEY (collision_severity) REFERENCES collision_severity (id) FOREIGN KEY (primary_coll_factor) REFERENCES primary_coll_factor (id) FOREIGN KEY (pcf_code_of_viol) REFERENCES pcf_code_of_viol (id) FOREIGN KEY (pcf_viol_category) REFERENCES pcf_viol_category (id) FOREIGN KEY (hit_and_run) REFERENCES hit_and_run (id) FOREIGN KEY (type_of_collision) REFERENCES type_of_collision (id) FOREIGN KEY (mviw) REFERENCES mviw (id) FOREIGN KEY (ped_action) REFERENCES ped_action (id) FOREIGN KEY (road_surface) REFERENCES road_surface (id) FOREIGN KEY (road_cond_1) REFERENCES road_cond (id) FOREIGN KEY (road_cond_2) REFERENCES road_cond (id) FOREIGN KEY (lighting) REFERENCES lighting (id) FOREIGN KEY (control_device) REFERENCES control_device (id) FOREIGN KEY (stwd_vehtype_at_fault) REFERENCES stwd_vehtype_at_fault (id) FOREIGN KEY (chp_vehtype_at_fault) REFERENCES chp_vehtype (id) FOREIGN KEY (primary_ramp) REFERENCES ramp (id) FOREIGN KEY (secondary_ramp) REFERENCES ramp (id)
 );
 
 CREATE VIEW collisions_view (
@@ -165,11 +136,33 @@ CREATE VIEW collisions_view (
     secondary_ramp_name,
     corrected_primary_rd,
     corrected_secondary_rd
-) AS SELECT 
+) AS
+SELECT
     c.case_id,
-    printf("%s %s%s, CA", c.primary_rd, iif(c.secondary_rd IS NOT NULL, printf("and %s ", c.secondary_rd), ""), cnty_city_loc.city),
-    printf("%s-%s-%s", substr(proc_date,1,4), substr(proc_date,5,2), substr(proc_date,7,2)),
-    printf("%s-%s-%sT%s:%s", substr(collision_date,1,4), substr(collision_date,5,2), substr(collision_date,7,2), substr(collision_time,1,2), substr(collision_time,3,2)),
+    printf (
+        "%s %s%s, CA",
+        c.primary_rd,
+        iif (
+            c.secondary_rd IS NOT NULL,
+            printf ("and %s ", c.secondary_rd),
+            ""
+        ),
+        cnty_city_loc.city
+    ),
+    printf (
+        "%s-%s-%s",
+        substr (proc_date, 1, 4),
+        substr (proc_date, 5, 2),
+        substr (proc_date, 7, 2)
+    ),
+    printf (
+        "%s-%s-%sT%s:%s",
+        substr (collision_date, 1, 4),
+        substr (collision_date, 5, 2),
+        substr (collision_date, 7, 2),
+        substr (collision_time, 1, 2),
+        substr (collision_time, 3, 2)
+    ),
     c.primary_rd,
     c.secondary_rd,
     c.state_route,
@@ -218,43 +211,44 @@ CREATE VIEW collisions_view (
     chp_vehtype.name,
     primary_ramp.name,
     secondary_ramp.name,
-    corrected_roads.primary_rd,
-    corrected_roads.secondary_rd
-FROM collisions AS c
--- join all the foreign key tables
-LEFT JOIN day_of_week ON c.day_of_week = day_of_week.id
-LEFT JOIN chp_shift ON c.chp_shift = chp_shift.id
-LEFT JOIN population ON c.population = population.id
-LEFT JOIN cnty_city_loc ON c.cnty_city_loc = cnty_city_loc.id
-LEFT JOIN special_cond ON c.special_cond = special_cond.id
-LEFT JOIN beat_type ON c.beat_type = beat_type.id
-LEFT JOIN chp_beat_type ON c.chp_beat_type = chp_beat_type.id
-LEFT JOIN direction ON c.direction = direction.id
-LEFT JOIN weather AS weather_1 ON c.weather_1 = weather_1.id
-LEFT JOIN weather AS weather_2 ON c.weather_2 = weather_2.id
-LEFT JOIN location_type ON c.location_type = location_type.id
-LEFT JOIN ramp_intersection ON c.ramp_intersection = ramp_intersection.id
-LEFT JOIN side_of_hwy ON c.side_of_hwy = side_of_hwy.id
-LEFT JOIN collision_severity ON c.collision_severity = collision_severity.id
-LEFT JOIN primary_coll_factor ON c.primary_coll_factor = primary_coll_factor.id
-LEFT JOIN pcf_code_of_viol ON c.pcf_code_of_viol = pcf_code_of_viol.id
-LEFT JOIN pcf_viol_category ON c.pcf_viol_category = pcf_viol_category.id
-LEFT JOIN hit_and_run ON c.hit_and_run = hit_and_run.id
-LEFT JOIN type_of_collision ON c.type_of_collision = type_of_collision.id
-LEFT JOIN mviw ON c.mviw = mviw.id
-LEFT JOIN ped_action ON c.ped_action = ped_action.id
-LEFT JOIN road_surface ON c.road_surface = road_surface.id
-LEFT JOIN road_cond AS road_cond_1 ON c.road_cond_1 = road_cond_1.id
-LEFT JOIN road_cond AS road_cond_2 ON c.road_cond_2 = road_cond_2.id
-LEFT JOIN lighting ON c.lighting = lighting.id
-LEFT JOIN control_device ON c.control_device = control_device.id
-LEFT JOIN stwd_vehtype_at_fault ON c.stwd_vehtype_at_fault = stwd_vehtype_at_fault.id
-LEFT JOIN chp_vehtype ON c.chp_vehtype_at_fault = chp_vehtype.id
-LEFT JOIN ramp primary_ramp ON c.primary_ramp = primary_ramp.id
-LEFT JOIN ramp secondary_ramp ON c.secondary_ramp = secondary_ramp.id
-LEFT JOIN corrected_roads ON c.case_id = corrected_roads.case_id
-WHERE 
-c.cnty_city_loc IN ("0102", "0103") -- see lookup-tables/CNTY_CITY_LOC.csv
+    switrs_corrected_roads.primary_rd,
+    switrs_corrected_roads.secondary_rd
+FROM
+    switrs_collisions AS c
+    -- join all the foreign key tables
+    LEFT JOIN day_of_week ON c.day_of_week = day_of_week.id
+    LEFT JOIN chp_shift ON c.chp_shift = chp_shift.id
+    LEFT JOIN population ON c.population = population.id
+    LEFT JOIN cnty_city_loc ON c.cnty_city_loc = cnty_city_loc.id
+    LEFT JOIN special_cond ON c.special_cond = special_cond.id
+    LEFT JOIN beat_type ON c.beat_type = beat_type.id
+    LEFT JOIN chp_beat_type ON c.chp_beat_type = chp_beat_type.id
+    LEFT JOIN direction ON c.direction = direction.id
+    LEFT JOIN weather AS weather_1 ON c.weather_1 = weather_1.id
+    LEFT JOIN weather AS weather_2 ON c.weather_2 = weather_2.id
+    LEFT JOIN location_type ON c.location_type = location_type.id
+    LEFT JOIN ramp_intersection ON c.ramp_intersection = ramp_intersection.id
+    LEFT JOIN side_of_hwy ON c.side_of_hwy = side_of_hwy.id
+    LEFT JOIN collision_severity ON c.collision_severity = collision_severity.id
+    LEFT JOIN primary_coll_factor ON c.primary_coll_factor = primary_coll_factor.id
+    LEFT JOIN pcf_code_of_viol ON c.pcf_code_of_viol = pcf_code_of_viol.id
+    LEFT JOIN pcf_viol_category ON c.pcf_viol_category = pcf_viol_category.id
+    LEFT JOIN hit_and_run ON c.hit_and_run = hit_and_run.id
+    LEFT JOIN type_of_collision ON c.type_of_collision = type_of_collision.id
+    LEFT JOIN mviw ON c.mviw = mviw.id
+    LEFT JOIN ped_action ON c.ped_action = ped_action.id
+    LEFT JOIN road_surface ON c.road_surface = road_surface.id
+    LEFT JOIN road_cond AS road_cond_1 ON c.road_cond_1 = road_cond_1.id
+    LEFT JOIN road_cond AS road_cond_2 ON c.road_cond_2 = road_cond_2.id
+    LEFT JOIN lighting ON c.lighting = lighting.id
+    LEFT JOIN control_device ON c.control_device = control_device.id
+    LEFT JOIN stwd_vehtype_at_fault ON c.stwd_vehtype_at_fault = stwd_vehtype_at_fault.id
+    LEFT JOIN chp_vehtype ON c.chp_vehtype_at_fault = chp_vehtype.id
+    LEFT JOIN ramp primary_ramp ON c.primary_ramp = primary_ramp.id
+    LEFT JOIN ramp secondary_ramp ON c.secondary_ramp = secondary_ramp.id
+    LEFT JOIN switrs_corrected_roads ON c.case_id = switrs_corrected_roads.case_id
+WHERE
+    c.cnty_city_loc IN ("0102", "0103") -- see lookup-tables/CNTY_CITY_LOC.csv
 ;
 
 -- view of the data included in this DB
@@ -263,9 +257,45 @@ CREATE VIEW version_view (
     last_proc_date,
     first_collision_datetime,
     last_collision_datetime
-) AS SELECT
-    (SELECT c.proc_date FROM collisions_view c ORDER BY c.proc_date LIMIT 1),
-    (SELECT c.proc_date FROM collisions_view c ORDER BY c.proc_date DESC LIMIT 1),
-    (SELECT c.collision_datetime FROM collisions_view c ORDER BY c.collision_datetime LIMIT 1),
-    (SELECT c.collision_datetime FROM collisions_view c ORDER BY c.collision_datetime DESC LIMIT 1)
-;
+) AS
+SELECT
+    (
+        SELECT
+            c.proc_date
+        FROM
+            collisions_view c
+        ORDER BY
+            c.proc_date
+        LIMIT
+            1
+    ),
+    (
+        SELECT
+            c.proc_date
+        FROM
+            collisions_view c
+        ORDER BY
+            c.proc_date DESC
+        LIMIT
+            1
+    ),
+    (
+        SELECT
+            c.collision_datetime
+        FROM
+            collisions_view c
+        ORDER BY
+            c.collision_datetime
+        LIMIT
+            1
+    ),
+    (
+        SELECT
+            c.collision_datetime
+        FROM
+            collisions_view c
+        ORDER BY
+            c.collision_datetime DESC
+        LIMIT
+            1
+    );

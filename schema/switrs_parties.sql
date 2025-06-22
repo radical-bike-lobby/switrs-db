@@ -1,9 +1,9 @@
-CREATE TABLE parties (
-    case_id VARCHAR2(19), -- Case Id: the unique identifier of the collision report (barcode beginning 2002; 19 digit code prior to 2002)
+CREATE TABLE switrs_parties (
+    case_id VARCHAR2 (19), -- Case Id: the unique identifier of the collision report (barcode beginning 2002; 19 digit code prior to 2002)
     party_number INTEGER, -- Party Number: 1 to 999
     party_type CHAR(1), -- Party Type (see lookup-tables/party-tables/PARTY_TYPE.csv)
     at_fault CHAR(1), -- At Fault: indicates whether the party was at fault in the collision, Y
-    party_sex CHAR(1),-- Party Sex: the code of the sex of the party (see lookup-tables/party-tables/PARTY_SEX.csv)
+    party_sex CHAR(1), -- Party Sex: the code of the sex of the party (see lookup-tables/party-tables/PARTY_SEX.csv)
     party_age INTEGER, -- Party Age: the age of the party at the time of the collision, 0 to 100+ (0 & blank = Not Stated)
     party_sobriety CHAR(1), -- Party Sobriety (see lookup-tables/party-tables/PARTY_SOBRIETY.csv)
     party_drug_physical CHAR(1), -- Party Drug Physical (see lookup-tables/party-tables/PARTY_DRUG_PHYSICAL.csv)
@@ -24,7 +24,7 @@ CREATE TABLE parties (
     party_number_injured INTEGER, -- Party Number Injured: counts victims in the party with degree of injury of 2, 3, or 4. 0 to N for each party
     move_pre_acc CHAR(1), -- Movement Preceding Collision (see lookup-tables/party-tables/MOVEMENT_PRECEDING_COLLISION.csv)
     vehicle_year INTEGER, -- Vehicle Year: the model year of the party's vehicle, 9999 or blank = not stated
-    vehicle_make VARCHAR2(50), -- Vehicle Make	Varchar2(50)	the full description of the make of the party's vehicle	
+    vehicle_make VARCHAR2 (50), -- Vehicle Make	Varchar2(50)	the full description of the make of the party's vehicle
     stwd_vehicle_type CHAR(1), -- Statewide Vehicle Type, TODO: is this STWD_VEHTYPE_AT_FAULT?
     chp_veh_type_towing CHAR(2), -- CHP Vehicle Type Towing (see lookup-tables/party-tables/CHP_VEHICLE_TYPE_TOWING.csv)
     chp_veh_type_towed CHAR(2), -- CHP Vehicle Type Towed (see lookup-tables/party-tables/CHP_VEHICLE_TYPE_TOWED.csv)
@@ -33,30 +33,12 @@ CREATE TABLE parties (
     special_info_f, -- Undocumented, unused?
     special_info_g, -- Undocumented, unused?
     local_report_number, -- Local Police Report Number
-    PRIMARY KEY(case_id, party_number) -- Multiple parties in each case
+    PRIMARY KEY (case_id, party_number) -- Multiple parties in each case
     -- add foreign keys
-    FOREIGN KEY(case_id) REFERENCES collisions(case_id)
-    FOREIGN KEY(party_type) REFERENCES party_type(id)
-    FOREIGN KEY(party_sex) REFERENCES party_sex(id)
-    FOREIGN KEY(party_sobriety) REFERENCES party_sobriety(id)
-    FOREIGN KEY(party_drug_physical) REFERENCES party_drug_physical(id)
-    FOREIGN KEY(dir_of_travel) REFERENCES dir_of_travel(id)
-    FOREIGN KEY(party_safety_equip_1) REFERENCES party_safety_equip(id)
-    FOREIGN KEY(party_safety_equip_2) REFERENCES party_safety_equip(id)
-    FOREIGN KEY(finan_respons) REFERENCES finan_respons(id)
-    FOREIGN KEY(sp_info_1) REFERENCES sp_info_1(id)
-    FOREIGN KEY(sp_info_2) REFERENCES sp_info_2(id)
-    FOREIGN KEY(sp_info_3) REFERENCES sp_info_3(id)
-    FOREIGN KEY(oaf_violation_code) REFERENCES oaf_violation_code(id)
-    FOREIGN KEY(oaf_viol_cat) REFERENCES oaf_viol_cat(id)
-    FOREIGN KEY(oaf_1) REFERENCES oaf(id)
-    FOREIGN KEY(oaf_2) REFERENCES oaf(id)
-    FOREIGN KEY(move_pre_acc) REFERENCES move_pre_acc(id)
-    FOREIGN KEY(chp_veh_type_towing) REFERENCES chp_vehtype(id)
-    FOREIGN KEY(chp_veh_type_towed) REFERENCES chp_vehtype(id)
-    FOREIGN KEY(race) REFERENCES race(id)
+    FOREIGN KEY (case_id) REFERENCES switrs_collisions (case_id) FOREIGN KEY (party_type) REFERENCES party_type (id) FOREIGN KEY (party_sex) REFERENCES party_sex (id) FOREIGN KEY (party_sobriety) REFERENCES party_sobriety (id) FOREIGN KEY (party_drug_physical) REFERENCES party_drug_physical (id) FOREIGN KEY (dir_of_travel) REFERENCES dir_of_travel (id) FOREIGN KEY (party_safety_equip_1) REFERENCES party_safety_equip (id) FOREIGN KEY (party_safety_equip_2) REFERENCES party_safety_equip (id) FOREIGN KEY (finan_respons) REFERENCES finan_respons (id) FOREIGN KEY (sp_info_1) REFERENCES sp_info_1 (id) FOREIGN KEY (sp_info_2) REFERENCES sp_info_2 (id) FOREIGN KEY (sp_info_3) REFERENCES sp_info_3 (id) FOREIGN KEY (oaf_violation_code) REFERENCES oaf_violation_code (id) FOREIGN KEY (oaf_viol_cat) REFERENCES oaf_viol_cat (id) FOREIGN KEY (oaf_1) REFERENCES oaf (id) FOREIGN KEY (oaf_2) REFERENCES oaf (id) FOREIGN KEY (move_pre_acc) REFERENCES move_pre_acc (id) FOREIGN KEY (chp_veh_type_towing) REFERENCES chp_vehtype (id) FOREIGN KEY (chp_veh_type_towed) REFERENCES chp_vehtype (id) FOREIGN KEY (race) REFERENCES race (id)
 );
-CREATE INDEX idx_parties_case_id ON parties(case_id);
+
+CREATE INDEX idx_parties_case_id ON switrs_parties (case_id);
 
 CREATE VIEW parties_view (
     case_id,
@@ -89,7 +71,8 @@ CREATE VIEW parties_view (
     chp_veh_type_towing_name,
     chp_veh_type_towed_name,
     race_name
-) AS SELECT 
+) AS
+SELECT
     p.case_id,
     p.party_number,
     p.party_type,
@@ -120,25 +103,25 @@ CREATE VIEW parties_view (
     chp_veh_type_towing.name,
     chp_veh_type_towed.name,
     race.name
-FROM parties AS p
--- join all the foreign key tables
-LEFT JOIN party_type ON p.party_type = party_type.id
-LEFT JOIN party_sex ON p.party_sex = party_sex.id
-LEFT JOIN party_sobriety ON p.party_sobriety = party_sobriety.id
-LEFT JOIN party_drug_physical ON p.party_drug_physical = party_drug_physical.id
-LEFT JOIN dir_of_travel ON p.dir_of_travel = dir_of_travel.id
-LEFT JOIN party_safety_equip party_safety_equip_1 ON p.party_safety_equip_1 = party_safety_equip_1.id
-LEFT JOIN party_safety_equip party_safety_equip_2 ON p.party_safety_equip_2 = party_safety_equip_2.id
-LEFT JOIN finan_respons ON p.finan_respons = finan_respons.id
-LEFT JOIN sp_info_1 ON p.sp_info_1 = sp_info_1.id
-LEFT JOIN sp_info_2 ON p.sp_info_2 = sp_info_2.id
-LEFT JOIN sp_info_3 ON p.sp_info_3 = sp_info_3.id
-LEFT JOIN oaf_violation_code ON p.oaf_violation_code = oaf_violation_code.id
-LEFT JOIN oaf_viol_cat ON p.oaf_viol_cat = oaf_viol_cat.id
-LEFT JOIN oaf oaf_1 ON p.oaf_1 = oaf_1.id
-LEFT JOIN oaf oaf_2 ON p.oaf_2 = oaf_2.id
-LEFT JOIN move_pre_acc ON p.move_pre_acc = move_pre_acc.id
-LEFT JOIN chp_vehtype chp_veh_type_towing ON p.chp_veh_type_towing = chp_veh_type_towing.id
-LEFT JOIN chp_vehtype chp_veh_type_towed ON p.chp_veh_type_towed = chp_veh_type_towed.id
-LEFT JOIN race ON p.race = race.id
-;
+FROM
+    switrs_parties AS p
+    -- join all the foreign key tables
+    LEFT JOIN party_type ON p.party_type = party_type.id
+    LEFT JOIN party_sex ON p.party_sex = party_sex.id
+    LEFT JOIN party_sobriety ON p.party_sobriety = party_sobriety.id
+    LEFT JOIN party_drug_physical ON p.party_drug_physical = party_drug_physical.id
+    LEFT JOIN dir_of_travel ON p.dir_of_travel = dir_of_travel.id
+    LEFT JOIN party_safety_equip party_safety_equip_1 ON p.party_safety_equip_1 = party_safety_equip_1.id
+    LEFT JOIN party_safety_equip party_safety_equip_2 ON p.party_safety_equip_2 = party_safety_equip_2.id
+    LEFT JOIN finan_respons ON p.finan_respons = finan_respons.id
+    LEFT JOIN sp_info_1 ON p.sp_info_1 = sp_info_1.id
+    LEFT JOIN sp_info_2 ON p.sp_info_2 = sp_info_2.id
+    LEFT JOIN sp_info_3 ON p.sp_info_3 = sp_info_3.id
+    LEFT JOIN oaf_violation_code ON p.oaf_violation_code = oaf_violation_code.id
+    LEFT JOIN oaf_viol_cat ON p.oaf_viol_cat = oaf_viol_cat.id
+    LEFT JOIN oaf oaf_1 ON p.oaf_1 = oaf_1.id
+    LEFT JOIN oaf oaf_2 ON p.oaf_2 = oaf_2.id
+    LEFT JOIN move_pre_acc ON p.move_pre_acc = move_pre_acc.id
+    LEFT JOIN chp_vehtype chp_veh_type_towing ON p.chp_veh_type_towing = chp_veh_type_towing.id
+    LEFT JOIN chp_vehtype chp_veh_type_towed ON p.chp_veh_type_towed = chp_veh_type_towed.id
+    LEFT JOIN race ON p.race = race.id;

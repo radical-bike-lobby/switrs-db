@@ -79,3 +79,27 @@ CREATE TABLE IF NOT EXISTS ccrs_crashes (
     is_aoi_one_same_as_location CHAR(1), -- True/False
     PRIMARY KEY (collision_id)
 );
+
+-- view of the data included in this DB
+CREATE VIEW IF NOT EXISTS ccrs_version_view (first_collision_datetime, last_collision_datetime) AS
+SELECT
+    (
+        SELECT
+            c.crash_date_time
+        FROM
+            ccrs_crashes c
+        ORDER BY
+            c.crash_date_time
+        LIMIT
+            1
+    ),
+    (
+        SELECT
+            c.crash_date_time
+        FROM
+            ccrs_crashes c
+        ORDER BY
+            c.crash_date_time DESC
+        LIMIT
+            1
+    );
