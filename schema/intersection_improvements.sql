@@ -1,11 +1,11 @@
 -- table of intersection improvements from across the city
 CREATE TABLE intersection_improvements (
     id INTEGER PRIMARY KEY,
-    primary_rd VARCHAR2(50),   -- primary road where the infrastructure was installed
-    secondary_rd VARCHAR2(50), -- secondary or cross road of the intersection
-    date_completed TEXT,       -- date, YYYY-MM-DD, when the infrastructure was completed
-    improvement_type INTEGER,  -- type of intersection installed
-    FOREIGN KEY(improvement_type) REFERENCES improvement_types(id)
+    primary_rd VARCHAR2 (50), -- primary road where the infrastructure was installed
+    secondary_rd VARCHAR2 (50), -- secondary or cross road of the intersection
+    date_completed TEXT, -- date, YYYY-MM-DD, when the infrastructure was completed
+    improvement_type INTEGER, -- type of intersection installed
+    FOREIGN KEY (improvement_type) REFERENCES improvement_types (id)
 );
 
 CREATE VIEW intersection_improvements_view (
@@ -16,7 +16,8 @@ CREATE VIEW intersection_improvements_view (
     improvement_type,
     -- joined table names
     improvement_name
-) AS SELECT 
+) AS
+SELECT
     i.id,
     i.primary_rd,
     i.secondary_rd,
@@ -24,10 +25,10 @@ CREATE VIEW intersection_improvements_view (
     i.improvement_type,
     -- joined table names
     improvement_types.name
-FROM intersection_improvements AS i
--- join all the foreign key tables
-LEFT JOIN improvement_types ON i.improvement_type = improvement_types.id
-;
+FROM
+    intersection_improvements AS i
+    -- join all the foreign key tables
+    LEFT JOIN improvement_types ON i.improvement_type = improvement_types.id;
 
 CREATE VIEW intersection_performance_view (
     id,
@@ -49,7 +50,8 @@ CREATE VIEW intersection_performance_view (
     count_ped_injured,
     count_bicyclist_killed,
     count_bicyclist_injured
-) AS SELECT 
+) AS
+SELECT
     i.id,
     i.primary_rd,
     i.secondary_rd,
@@ -69,10 +71,15 @@ CREATE VIEW intersection_performance_view (
     c.count_ped_injured,
     c.count_bicyclist_killed,
     c.count_bicyclist_injured
-FROM intersection_improvements AS i
--- join all the foreign key tables
-LEFT JOIN improvement_types ON i.improvement_type = improvement_types.id
-LEFT JOIN collisions_view as c ON (c.corrected_primary_rd = i.primary_rd AND c.corrected_secondary_rd = i.secondary_rd)
-                               OR (c.corrected_secondary_rd = i.primary_rd AND c.corrected_primary_rd = i.secondary_rd)
-;
-
+FROM
+    intersection_improvements AS i
+    -- join all the foreign key tables
+    LEFT JOIN improvement_types ON i.improvement_type = improvement_types.id
+    LEFT JOIN switrs_collisions_view as c ON (
+        c.corrected_primary_rd = i.primary_rd
+        AND c.corrected_secondary_rd = i.secondary_rd
+    )
+    OR (
+        c.corrected_secondary_rd = i.primary_rd
+        AND c.corrected_primary_rd = i.secondary_rd
+    );

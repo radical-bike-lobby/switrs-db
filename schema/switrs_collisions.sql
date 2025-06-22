@@ -81,7 +81,7 @@ CREATE TABLE switrs_collisions (
     FOREIGN KEY (day_of_week) REFERENCES day_of_week (id) FOREIGN KEY (chp_shift) REFERENCES chp_shift (id) FOREIGN KEY (population) REFERENCES population (id) FOREIGN KEY (cnty_city_loc) REFERENCES cnty_city_loc (id) FOREIGN KEY (special_cond) REFERENCES special_cond (id) FOREIGN KEY (beat_type) REFERENCES beat_type (id) FOREIGN KEY (chp_beat_type) REFERENCES chp_beat_type (id) FOREIGN KEY (direction) REFERENCES direction (id) FOREIGN KEY (weather_1) REFERENCES weather (id) FOREIGN KEY (weather_2) REFERENCES weather (id) FOREIGN KEY (location_type) REFERENCES location_type (id) FOREIGN KEY (ramp_intersection) REFERENCES ramp_intersection (id) FOREIGN KEY (side_of_hwy) REFERENCES side_of_hwy (id) FOREIGN KEY (collision_severity) REFERENCES collision_severity (id) FOREIGN KEY (primary_coll_factor) REFERENCES primary_coll_factor (id) FOREIGN KEY (pcf_code_of_viol) REFERENCES pcf_code_of_viol (id) FOREIGN KEY (pcf_viol_category) REFERENCES pcf_viol_category (id) FOREIGN KEY (hit_and_run) REFERENCES hit_and_run (id) FOREIGN KEY (type_of_collision) REFERENCES type_of_collision (id) FOREIGN KEY (mviw) REFERENCES mviw (id) FOREIGN KEY (ped_action) REFERENCES ped_action (id) FOREIGN KEY (road_surface) REFERENCES road_surface (id) FOREIGN KEY (road_cond_1) REFERENCES road_cond (id) FOREIGN KEY (road_cond_2) REFERENCES road_cond (id) FOREIGN KEY (lighting) REFERENCES lighting (id) FOREIGN KEY (control_device) REFERENCES control_device (id) FOREIGN KEY (stwd_vehtype_at_fault) REFERENCES stwd_vehtype_at_fault (id) FOREIGN KEY (chp_vehtype_at_fault) REFERENCES chp_vehtype (id) FOREIGN KEY (primary_ramp) REFERENCES ramp (id) FOREIGN KEY (secondary_ramp) REFERENCES ramp (id)
 );
 
-CREATE VIEW collisions_view (
+CREATE VIEW switrs_collisions_view (
     case_id,
     address,
     proc_date,
@@ -252,7 +252,7 @@ WHERE
 ;
 
 -- view of the data included in this DB
-CREATE VIEW version_view (
+CREATE VIEW switrs_version_view (
     first_proc_date,
     last_proc_date,
     first_collision_datetime,
@@ -263,7 +263,7 @@ SELECT
         SELECT
             c.proc_date
         FROM
-            collisions_view c
+            switrs_collisions_view c
         ORDER BY
             c.proc_date
         LIMIT
@@ -273,7 +273,7 @@ SELECT
         SELECT
             c.proc_date
         FROM
-            collisions_view c
+            switrs_collisions_view c
         ORDER BY
             c.proc_date DESC
         LIMIT
@@ -283,7 +283,7 @@ SELECT
         SELECT
             c.collision_datetime
         FROM
-            collisions_view c
+            switrs_collisions_view c
         ORDER BY
             c.collision_datetime
         LIMIT
@@ -293,7 +293,7 @@ SELECT
         SELECT
             c.collision_datetime
         FROM
-            collisions_view c
+            switrs_collisions_view c
         ORDER BY
             c.collision_datetime DESC
         LIMIT

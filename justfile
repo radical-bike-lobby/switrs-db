@@ -12,9 +12,9 @@ target_dir:
 clean:
     rm -r {{TARGET_DIR}}
 
-deploy source_dir: (build source_dir) 
+deploy source_dir: (build source_dir)
     @date=$(date -Idate) && \
-      eval $(sqlite3 "{{TARGET_DIR}}/{{DB_FILE}}" -line 'select * from version_view;' | sed 's/ *//g') && \
+      eval $(sqlite3 "{{TARGET_DIR}}/{{DB_FILE}}" -line 'select * from switrs_version_view;' | sed 's/ *//g') && \
       version_str="generated: $date; first/last processed dates: $first_proc_date/$last_proc_date; first/last collision datetime: $first_collision_datetime/$last_collision_datetime" && \
       echo "Deploying with version, $version_str" && \
       datasette publish fly "{{TARGET_DIR}}/{{DB_FILE}}" --app switrs --org radical-bike-lobby --version-note "$version_str"
@@ -31,7 +31,7 @@ init: init-internal
 
 ## Helper scripts for generating reports
 version-report:
-    sqlite3 {{TARGET_DIR}}/{{DB_FILE}} -line 'select * from version_view;' 
+    sqlite3 {{TARGET_DIR}}/{{DB_FILE}} -line 'select * from switrs_version_view;'
 
 victim-cohort-report:
     sqlite3 "{{TARGET_DIR}}/{{DB_FILE}}" -line \
@@ -43,7 +43,7 @@ victim-cohort-report:
           SUM(CASE WHEN victim_age BETWEEN 41 AND 60 THEN 1 ELSE 0 END) AS "41-60", \
           SUM(CASE WHEN victim_age BETWEEN 61 AND 75 THEN 1 ELSE 0 END) AS "61-75", \
           SUM(CASE WHEN victim_age > 75 THEN 1 ELSE 0 END) AS "Over 75" \
-       from victims_view \
+       from switrs_victims_view \
        where victim_role_name = "Pedestrian";'
 
 ##
@@ -61,7 +61,7 @@ party-cohort-report:
           SUM(CASE WHEN party_age BETWEEN 41 AND 60 THEN 1 ELSE 0 END) AS "41-60", \
           SUM(CASE WHEN party_age BETWEEN 61 AND 75 THEN 1 ELSE 0 END) AS "61-75", \
           SUM(CASE WHEN party_age > 75 THEN 1 ELSE 0 END) AS "Over 75" \
-       from parties_view \
+       from switrs_parties_view \
        where party_type = "1";'
 
 # id,name
@@ -72,4 +72,3 @@ party-cohort-report:
 # 5,Other
 # 6,Undefined in RawData_template
 # -,Not Stated
-

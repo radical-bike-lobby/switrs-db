@@ -40,7 +40,7 @@ CREATE TABLE switrs_parties (
 
 CREATE INDEX idx_parties_case_id ON switrs_parties (case_id);
 
-CREATE VIEW parties_view (
+CREATE VIEW switrs_parties_view (
     case_id,
     party_number,
     party_type,

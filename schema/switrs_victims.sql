@@ -18,7 +18,7 @@ CREATE INDEX idx_victims_case_id ON switrs_victims (case_id);
 
 CREATE INDEX idx_victims_case_id_party_number ON switrs_victims (case_id, party_number);
 
-CREATE VIEW victims_view (
+CREATE VIEW switrs_victims_view (
     case_id,
     party_number,
     victim_age,
