@@ -57,7 +57,7 @@ Now the sqlite tools or other programs can be used with the DB.
 > sqlite3 target/switrs.sqlite
 SQLite version 3.43.2 2023-10-10 13:08:14
 Enter ".help" for usage hints.
-sqlite> SELECT * FROM collisions_view WHERE primary_rd LIKE "%Hopkins%" AND bicycle_accident == 'Y';
+sqlite> SELECT * FROM switrs_collisions_view WHERE primary_rd LIKE "%Hopkins%" AND bicycle_accident == 'Y';
 6141237|HOPKINS ST and PERALTA AV Berkeley, CA|2014-03-07|2013-06-18T17:04|HOPKINS ST|PERALTA AV|||Y|0|0|1|0|0|0|1|||Tuesday|Not CHP|Incorporated (100000 - 250000)|Berkeley|Not Above|Not CHP|Not CHP|East|Clear|Not Stated||||Injury (Complaint of Pain)|(Vehicle) Code Violation|Not Stated|Improper Turning|Not Hit and Run|Overturned|Bicycle|No Pedestrian Involved|Dry|No Unusual Condition|Not Stated|Daylight|None|Bicycle|Bicycle|Not Stated|Not Stated
 7181630|HOPKINS ST and PERALTA AV Berkeley, CA|2016-02-18|2015-12-01T08:20|HOPKINS ST|PERALTA AV|||Y|0|1|0|0|0|0|1|||Tuesday|Not CHP|Incorporated (100000 - 250000)|Berkeley|Not Above|Not CHP|Not CHP|West|Clear|Not Stated||||Injury (Other Visible)|(Vehicle) Code Violation|Not Stated|Unsafe Speed|Not Hit and Run|Hit Object|Fixed Object|No Pedestrian Involved|Dry|No Unusual Condition|Not Stated|Daylight|None|Bicycle|Bicycle|Not Stated|Not Stated
 8050043|HOPKINS ST and CARLOTTA AV Berkeley, CA|2016-06-10|2016-04-30T12:30|HOPKINS ST|CARLOTTA AV|||Y|1|0|0|0|0|0|1|||Saturday|Not CHP|Incorporated (100000 - 250000)|Berkeley|Not Above|Not CHP|Not CHP|East|Clear|Not Stated||||Injury (Severe)|(Vehicle) Code Violation|Not Stated|Improper Turning|Not Hit and Run|Rear End|Bicycle|No Pedestrian Involved|Dry|No Unusual Condition|Not Stated|Daylight|None|Bicycle|Bicycle|Not Stated|Not Stated
@@ -77,7 +77,7 @@ The `collisions` table is joined against the tables at the root of `lookup-table
 
 ### Berkeley Specific Data
 
-Similar to the `lookup-tables` there is `berkeley-tables`. These are specific data enhancements for the City of Berkeley, CA. 
+Similar to the `lookup-tables` there is `berkeley-tables`. These are specific data enhancements for the City of Berkeley, CA.
 
 #### Fixing Road Names
 
