@@ -377,7 +377,7 @@ pub trait NewDB {
         // when processing collision data, we will cleanup some data,
         //   for that we have some custom insert and one off tables
         let mut insert_road_stmt = self.connection().prepare(
-            "INSERT INTO normalized_roads (
+            "INSERT INTO switrs_normalized_roads (
                 case_id,
                 primary_rd,
                 primary_rd_address,
@@ -402,7 +402,7 @@ pub trait NewDB {
 
         let mut select_roads = self
             .connection()
-            .prepare("SELECT case_id, primary_rd, secondary_rd FROM collisions")?;
+            .prepare("SELECT case_id, primary_rd, secondary_rd FROM switrs_collisions")?;
 
         let mut roads = select_roads.query([])?;
         while let Some(road) = roads.next()? {
@@ -455,11 +455,11 @@ pub trait NewDB {
                 tp.correct_rd as suggest_primary_rd,
                 ts.correct_rd as suggest_secondary_rd
                 FROM
-                normalized_roads as n
-                LEFT JOIN collisions_view as c ON c.case_id = n.case_id
-                LEFT JOIN corrected_roads as cr ON cr.case_id = n.case_id
-                LEFT JOIN collisions as cp ON cp.case_id = n.case_id AND cp.primary_rd in (SELECT DISTINCT correct_rd FROM berkeley_road_typos)
-                LEFT JOIN collisions as cs ON cs.case_id = n.case_id AND cs.secondary_rd in (SELECT DISTINCT correct_rd FROM berkeley_road_typos)
+                switrs_normalized_roads as n
+                LEFT JOIN switrs_collisions as c ON c.case_id = n.case_id
+                LEFT JOIN switrs_corrected_roads as cr ON cr.case_id = n.case_id
+                LEFT JOIN switrs_collisions as cp ON cp.case_id = n.case_id AND cp.primary_rd in (SELECT DISTINCT correct_rd FROM berkeley_road_typos)
+                LEFT JOIN switrs_collisions as cs ON cs.case_id = n.case_id AND cs.secondary_rd in (SELECT DISTINCT correct_rd FROM berkeley_road_typos)
                 LEFT JOIN berkeley_road_typos as tp ON tp.normalized_rd = n.primary_rd
                 LEFT JOIN berkeley_road_typos as ts ON ts.normalized_rd = n.secondary_rd
                 ORDER BY case_id
@@ -521,9 +521,9 @@ pub trait NewDB {
         }
 
         // reload data from the CORRECTED_ROADS
-        info!("RELOADING corrected_roads with any new roads");
+        info!("RELOADING switrs_corrected_roads with any new roads");
         self.load_data_with_options(
-            "corrected_roads",
+            "switrs_corrected_roads",
             Path::new("berkeley-tables/CORRECTED_ROADS.csv"),
             true,
             true,
@@ -600,10 +600,10 @@ mod tests {
     fn test_toml() {
         let schemas = Schema::from_toml_file(Path::new("Schemas.toml")).expect("toml is bad");
 
-        assert_eq!(schemas.table_order[1], "parties");
+        assert_eq!(schemas.table_order[1], "switrs_parties");
         assert_eq!(
-            schemas.tables["parties"].schema,
-            Path::new("schema/parties.sql")
+            schemas.tables["switrs_parties"].schema,
+            Path::new("schema/switrs_parties.sql")
         );
     }
 
@@ -712,24 +712,28 @@ mod tests {
         connection
             .connection()
             .create_table(
-                "normalized_roads",
+                "switrs_normalized_roads",
                 "",
-                Path::new("schema/normalized_roads.sql"),
+                Path::new("schema/switrs_normalized_roads.sql"),
             )
             .expect("failed to create table");
 
         connection
             .connection()
-            .create_table("collisions", "", Path::new("schema/collisions.sql"))
+            .create_table(
+                "switrs_collisions",
+                "",
+                Path::new("schema/switrs_collisions.sql"),
+            )
             .expect("failed to create table");
 
         connection
-            .execute("SELECT * from collisions", [])
+            .execute("SELECT * from switrs_collisions", [])
             .expect("failed to execute query");
 
         let count = connection
             .connection()
-            .load_data("collisions", Path::new("tests/data/collisions.csv"))
+            .load_data("switrs_collisions", Path::new("tests/data/collisions.csv"))
             .expect("failed to create table");
 
         assert_eq!(40, count);
@@ -750,35 +754,39 @@ mod tests {
         connection
             .connection()
             .create_table(
-                "normalized_roads",
+                "switrs_normalized_roads",
                 "",
-                Path::new("schema/normalized_roads.sql"),
+                Path::new("schema/switrs_normalized_roads.sql"),
             )
             .expect("failed to create table");
 
         // load test data into the collisions table
         connection
             .connection()
-            .create_table("collisions", "", Path::new("schema/collisions.sql"))
+            .create_table(
+                "switrs_collisions",
+                "",
+                Path::new("schema/switrs_collisions.sql"),
+            )
             .expect("failed to create table");
         connection
             .connection()
-            .load_data("collisions", Path::new("tests/data/collisions.csv"))
+            .load_data("switrs_collisions", Path::new("tests/data/collisions.csv"))
             .expect("failed to create table");
 
         // parties
         connection
             .connection()
-            .create_table("parties", "", Path::new("schema/parties.sql"))
+            .create_table("switrs_parties", "", Path::new("schema/switrs_parties.sql"))
             .expect("failed to create table");
 
         connection
-            .execute("SELECT * from parties", [])
+            .execute("SELECT * from switrs_parties", [])
             .expect("failed to execute query");
 
         let count = connection
             .connection()
-            .load_data("parties", Path::new("tests/data/parties.csv"))
+            .load_data("switrs_parties", Path::new("tests/data/parties.csv"))
             .expect("failed to create table");
 
         assert_eq!(80, count);
@@ -799,45 +807,49 @@ mod tests {
         connection
             .connection()
             .create_table(
-                "normalized_roads",
+                "switrs_normalized_roads",
                 "",
-                Path::new("schema/normalized_roads.sql"),
+                Path::new("schema/switrs_normalized_roads.sql"),
             )
             .expect("failed to create table");
 
         // load test data into the collisions table
         connection
             .connection()
-            .create_table("collisions", "", Path::new("schema/collisions.sql"))
+            .create_table(
+                "switrs_collisions",
+                "",
+                Path::new("schema/switrs_collisions.sql"),
+            )
             .expect("failed to create table");
         connection
             .connection()
-            .load_data("collisions", Path::new("tests/data/collisions.csv"))
+            .load_data("switrs_collisions", Path::new("tests/data/collisions.csv"))
             .expect("failed to create table");
 
         // load parties
         connection
             .connection()
-            .create_table("parties", "", Path::new("schema/parties.sql"))
+            .create_table("switrs_parties", "", Path::new("schema/switrs_parties.sql"))
             .expect("failed to create table");
         connection
             .connection()
-            .load_data("parties", Path::new("tests/data/parties.csv"))
+            .load_data("switrs_parties", Path::new("tests/data/parties.csv"))
             .expect("failed to create table");
 
         // test victims
         connection
             .connection()
-            .create_table("victims", "", Path::new("schema/victims.sql"))
+            .create_table("switrs_victims", "", Path::new("schema/switrs_victims.sql"))
             .expect("failed to create table");
 
         connection
-            .execute("SELECT * from victims", [])
+            .execute("SELECT * from switrs_victims", [])
             .expect("failed to execute query");
 
         let count = connection
             .connection()
-            .load_data("victims", Path::new("tests/data/victims.csv"))
+            .load_data("switrs_victims", Path::new("tests/data/victims.csv"))
             .expect("failed to create table");
 
         assert_eq!(39, count);
